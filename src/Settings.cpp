@@ -18,7 +18,7 @@ void Settings::LoadSettings() noexcept
     bShowCharacterName  = ini.GetBoolValue("Display", "bShowCharacterName", true);
     bShowCharacterLevel = ini.GetBoolValue("Display", "bShowCharacterLevel", true);
 
-    bEnableDebug = ini.GetBoolValue("Log", "Debug", false);
+    bEnableDebug = ini.GetBoolValue("Log", "bEnableDebug", false);
 
     if (bEnableDebug)
     {
