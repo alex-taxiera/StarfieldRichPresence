@@ -5,9 +5,10 @@ class Settings : public Singleton<Settings>
 public:
     static void LoadSettings() noexcept;
 
-    inline static bool logDebug{};
+    inline static bool bEnableDebug{};
 
-    inline static bool displayTimeElapsed{};
-    inline static bool displayShipName{};
-    inline static bool displayCharacterName{};
+    inline static bool bShowTimeElapsed{};
+    inline static bool bShowShipName{};
+    inline static bool bShowCharacterName{};
+    inline static bool bShowCharacterLevel{};
 };

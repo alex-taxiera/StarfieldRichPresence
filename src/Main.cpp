@@ -1,14 +1,13 @@
-#include "Hooks.h"
+#include "PresenceManager.h"
+#include "Settings.h"
 
 // SFSE message listener, use this to do stuff at specific moments during runtime
 void Listener(SFSE::MessagingInterface::Message* message) noexcept
 {
-    if (message->type <=> SFSE::MessagingInterface::kPostLoad == 0)
-    {
-    }
     if (message->type <=> SFSE::MessagingInterface::kPostPostLoad == 0)
     {
-        Hooks::Install();
+        Settings::LoadSettings();
+        PresenceManager::Start();
     }
 }
 

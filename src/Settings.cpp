@@ -13,13 +13,14 @@ void Settings::LoadSettings() noexcept
         return;
     }
 
-    displayTimeElapsed = ini.GetBoolValue("Display", "TimeElapsed");
-    displayShipName = ini.GetBoolValue("Display", "ShipName");
-    displayCharacterName = ini.GetBoolValue("Display", "CharacterName");
+    bShowTimeElapsed    = ini.GetBoolValue("Display", "bShowTimeElapsed", true);
+    bShowShipName       = ini.GetBoolValue("Display", "bShowShipName", true);
+    bShowCharacterName  = ini.GetBoolValue("Display", "bShowCharacterName", true);
+    bShowCharacterLevel = ini.GetBoolValue("Display", "bShowCharacterLevel", true);
 
-    logDebug = ini.GetBoolValue("Log", "Debug");
+    bEnableDebug = ini.GetBoolValue("Log", "Debug", false);
 
-    if (logDebug)
+    if (bEnableDebug)
     {
         spdlog::get("Global")->set_level(spdlog::level::level_enum::debug);
         logger::debug("Debug logging enabled");

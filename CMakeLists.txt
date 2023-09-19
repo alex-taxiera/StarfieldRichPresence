@@ -35,7 +35,8 @@ set(
   sources
     src/Main.cpp
     src/Settings.cpp
-    src/Hooks.cpp
+    src/PresenceManager.cpp
+    src/Discord.cpp
 
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
@@ -55,16 +56,10 @@ add_commonlibsf_plugin(
   SOURCES ${headers} ${sources}
 )
 
-add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
-
-#find_library(DISCORD_GAME_SDK discord_game_sdk)
-#target_link_libraries(${PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/discord_game_sdk.lib)
-#target_include_directories(${PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/discord-game-sdk)
-#target_link_libraries(${PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/discord_game_sdk_cpp.lib)
-
-
 find_library(DISCORD_RPC discord-rpc)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${DISCORD_RPC})
+
+add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
 
 find_path(SIMPLEINI_INCLUDE_DIRS "SimpleIni.h")
 
