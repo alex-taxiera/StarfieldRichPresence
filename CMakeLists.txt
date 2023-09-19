@@ -5,7 +5,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ## Define project
 ########################################################################################################################
 project(
-  PluginName
+  StarfieldRichPresence
   VERSION 0.0.1
   LANGUAGES CXX
 )
@@ -49,14 +49,22 @@ source_group(
 ## Configure target DLL
 ########################################################################################################################
 find_package(CommonLibSF CONFIG REQUIRED)
-
 add_commonlibsf_plugin(
   ${PROJECT_NAME}
-  AUTHOR AuthorName
+  AUTHOR "Alex Taxiera"
   SOURCES ${headers} ${sources}
 )
 
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
+
+#find_library(DISCORD_GAME_SDK discord_game_sdk)
+#target_link_libraries(${PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/discord_game_sdk.lib)
+#target_include_directories(${PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/discord-game-sdk)
+#target_link_libraries(${PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/discord_game_sdk_cpp.lib)
+
+
+find_library(DISCORD_RPC discord-rpc)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${DISCORD_RPC})
 
 find_path(SIMPLEINI_INCLUDE_DIRS "SimpleIni.h")
 

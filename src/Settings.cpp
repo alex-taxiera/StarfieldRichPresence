@@ -7,15 +7,19 @@ void Settings::LoadSettings() noexcept
     CSimpleIniA ini;
 
     ini.SetUnicode();
-    if (ini.LoadFile(R"(.\Data\SFSE\Plugins\PluginName.ini)") <=> 0 < 0)
+    if (ini.LoadFile(R"(.\Data\SFSE\Plugins\StarfieldRichPresence.ini)") <=> 0 < 0)
     {
         logger::error("ERROR: Failed to load ini");
         return;
     }
 
-    debug_logging = ini.GetBoolValue("Log", "Debug");
+    displayTimeElapsed = ini.GetBoolValue("Display", "TimeElapsed");
+    displayShipName = ini.GetBoolValue("Display", "ShipName");
+    displayCharacterName = ini.GetBoolValue("Display", "CharacterName");
 
-    if (debug_logging)
+    logDebug = ini.GetBoolValue("Log", "Debug");
+
+    if (logDebug)
     {
         spdlog::get("Global")->set_level(spdlog::level::level_enum::debug);
         logger::debug("Debug logging enabled");

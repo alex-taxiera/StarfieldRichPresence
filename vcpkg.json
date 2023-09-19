@@ -1,8 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "name": "plugin-name",
+  "name": "starfield-rich-presence",
   "version-semver": "0.0.1",
-  "dependencies": ["commonlibsf", "simpleini"],
+  "dependencies": ["commonlibsf", "simpleini", "discord-rpc"],
   "license": "GPL-3.0-or-later",
   "vcpkg-configuration": {
     "default-registry": {
@@ -14,8 +14,8 @@
       {
         "kind": "git",
         "repository": "https://github.com/Starfield-Reverse-Engineering/Starfield-RE-vcpkg",
-        "baseline": "6de1609ecac41e0fc5c305844e09045c7674a915",
-        "packages": ["commonlibsf"]
+        "baseline": "03e78393843519eab8e3efc11673fb62f24e0f9c",
+        "packages": [ "commonlibsf" ]
       }
     ]
   }
