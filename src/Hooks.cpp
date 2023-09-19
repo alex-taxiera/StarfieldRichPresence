@@ -14,38 +14,31 @@ struct Strings
     std::string InSpaceship   = "In Spaceship";
 };
 
+struct Resources
+{
+    std::string StarfieldLogo = "sf_logo";
+};
+
 typedef RE::TESObjectCELL*(__fastcall* _GetRefCell)(RE::TESObjectREFR* TargetRef);
-REL::Relocation<_GetRefCell> GetRefCell(0x01A093BC);
+REL::Relocation<_GetRefCell> GetRefCell{ REL::Offset(0x01A093BC) };
 
 namespace Hooks
 {
     std::string discordAppId = "468591679599935490";
     std::string otherAppId   = "1151867904082587709";
-    int64_t     StartTime    = 0;
+    int64_t     startTime    = 0;
+    int64_t     sleepTime    = 4000;
 
     Strings Text;
+    Resources resources;
 
-    RE::TESForm* PlayerRefAsForm = NULL;
-    RE::TESForm* PlayerFormBASE = NULL;
-    RE::TESObjectREFR* PlayerRefAsRef = NULL;
-    RE::TESActorBaseData* PlayerActorBaseData = NULL;
-    RE::Actor* PlayerActor = NULL;
+    RE::TESForm* playerRefAsForm = NULL;
+    RE::TESForm* playerFormBASE = NULL;
+    RE::TESObjectREFR* playerRefAsRef = NULL;
+    RE::TESActorBaseData* playerActorBaseData = NULL;
+    RE::Actor* playerActor = NULL;
 
     std::thread* discordThread;
-
-    void HandleDiscordReady(const DiscordUser* user)
-    {
-        logger::debug("Discord: ready");
-        logger::debug("Discord: username: {}", user->username);
-    }
-    void HandleDiscordError(int errorCode, const char* message)
-    {
-        logger::debug("Discord: error {}: {}", errorCode, message);
-    }
-    void HandleDiscordDisconnect(int errorCode, const char* message)
-    {
-        logger::debug("Discord: disconnect {}: {}", errorCode, message);
-    }
 
     void SetDiscordPresence(const char* state, const char* details)
     {
@@ -56,23 +49,22 @@ namespace Hooks
 
         if (Settings::displayTimeElapsed)
         {
-            discordPresence.startTimestamp = StartTime;
+            discordPresence.startTimestamp = startTime;
         }
 
-        //discordPresence.largeImageKey = AppLogoName.c_str();
+        discordPresence.largeImageKey = resources.StarfieldLogo.c_str();
         discordPresence.instance      = 0;
 
+        logger::debug("Presence state: {}", discordPresence.state);
+        logger::debug("Presence details: {}", discordPresence.details);
         Discord_UpdatePresence(&discordPresence);
     }
 
     bool InitializeDiscordPresence()
     {
-        StartTime = time(0);
+        startTime = time(0);
         DiscordEventHandlers handlers;
         memset(&handlers, 0, sizeof(handlers));
-        handlers.ready        = HandleDiscordReady;
-        handlers.errored      = HandleDiscordError;
-        handlers.disconnected = HandleDiscordDisconnect;
         Discord_Initialize(otherAppId.c_str(), &handlers, 1, NULL);
 
         SetDiscordPresence("", Text.LaunchingGame.c_str());
@@ -85,10 +77,12 @@ namespace Hooks
         std::string details{};
         if (Settings::displayCharacterName)
         {
-            const char* PName = PlayerRefAsRef->GetDisplayFullName();
+            logger::debug("getting player name");
+            const char* PName = playerRefAsRef->GetDisplayFullName();
 
             if (PName)
             {
+                logger::debug("got player name: {}", PName);
                 details += PName;
             }
             else
@@ -115,20 +109,27 @@ namespace Hooks
 
     std::string Get_PlayerState()
     {
-        if (PlayerRefAsRef->IsInSpace())
+        logger::debug("getting player is in space");
+        if (playerRefAsRef->IsInSpace())
         {
+            logger::debug("player is in space");
             return "In space";
         }
+
         std::string state{};
 
-        auto MyShip = PlayerRefAsRef->GetAttachedSpaceship();
+        logger::debug("trying to get spaceship");
+        auto MyShip = playerRefAsRef->GetAttachedSpaceship();
+
         if (MyShip)
         {
+            logger::debug("got spaceship");
             state = "In spaceship";
 
             if (Settings::displayShipName)
             {
                 std::string sTemp = MyShip->GetDisplayFullName();
+                logger::debug("got ship name: {}", sTemp.c_str());
 
                 if (sTemp.length() > 0)
                 {
@@ -139,33 +140,41 @@ namespace Hooks
             return state;
         }
 
-        bool isInCombat = PlayerActor->IsInCombat();
+        logger::debug("trying to get combat status");
+        bool isInCombat = playerActor->IsInCombat();
 
         if (isInCombat)
         {
+            logger::debug("got combat status true");
             state = Text.Fighting + " ";
         }
         else
         {
+            logger::debug("got combat status false");
             state = Text.Exploring + " ";
         }
 
-        auto RefCell = GetRefCell(PlayerRefAsRef);
+        logger::debug("trying to get ref cell");
+        auto RefCell = GetRefCell(playerRefAsRef);
 
         if (RefCell)
         {
+            logger::debug("got ref cell");
             std::string cellName = RefCell->GetFullName();
 
             if (cellName.length() > 0)
             {
+                logger::debug("got cell name: {}", cellName.c_str());
                 state += cellName;
             }
-        } else if (PlayerRefAsRef->parentCell)
+        } else if (playerRefAsRef->parentCell)
         {
-            std::string parentCellName = PlayerRefAsRef->parentCell->GetFullName(); // for interiors
+            logger::debug("got parent cell");
+            std::string parentCellName = playerRefAsRef->parentCell->GetFullName(); // for interiors
 
             if (parentCellName.length() > 0)
             {
+                logger::debug("got parent cell name: {}", parentCellName.c_str());
                 state += parentCellName;
             }
         }
@@ -176,48 +185,49 @@ namespace Hooks
     void MainLoop()
     {
         (*discordThread).detach();
+        Settings::LoadSettings();
 
         for (;;)
         {
-            Sleep(4000);
+            logger::debug("sleeping for {}", sleepTime);
+            Sleep(sleepTime);
 
-            logger::debug("DiscordPresence works");
-            PlayerRefAsForm = RE::TESForm::LookupByID(20);
+            playerRefAsForm = RE::TESForm::LookupByID(20);
 
-            if (!PlayerRefAsForm)
+            if (!playerRefAsForm)
             {
                 logger::debug("PlayerRefAsForm is not valid");
                 continue;
             }
 
-            PlayerRefAsRef = (RE::TESObjectREFR*)PlayerRefAsForm;
+            playerRefAsRef = playerRefAsForm->AsReference();
 
-            if (!PlayerRefAsRef)
+            if (!playerRefAsRef)
             {
                 logger::debug("PlayerRefAsRef is not valid");
                 continue;
             }
 
-            PlayerActor = (RE::Actor*)PlayerRefAsRef;
+            playerActor = (RE::Actor*)playerRefAsRef;
 
-            if (!PlayerActor)
+            if (!playerActor)
             {
                 logger::debug("PCActor is not valid");
                 continue;
             }
 
             // PlayerFormBASE = LookupFormByID(7);
-            PlayerFormBASE = RE::TESForm::LookupByID(7);
+            playerFormBASE = RE::TESForm::LookupByID(7);
 
-            if (!PlayerFormBASE)
+            if (!playerFormBASE)
             {
                 logger::debug("PlayerFormBASE is not valid");
                 continue;
             }
 
-            PlayerActorBaseData = dynamic_cast<RE::TESActorBaseData*>(PlayerFormBASE);
+            playerActorBaseData = starfield_cast<RE::TESActorBaseData*>(playerFormBASE);
 
-            if (!PlayerActorBaseData)
+            if (!playerActorBaseData)
             {
                 logger::debug("PlayerActorBaseData is not valid");
                 continue;
@@ -225,17 +235,15 @@ namespace Hooks
 
             logger::debug("All valid - continuing");
 
-            if (!PlayerRefAsRef->parentCell)
+            if (!playerRefAsRef->parentCell)
             {
+                logger::debug("no parentCell, setting presence to main menu");
                 SetDiscordPresence("", Text.InMainMenu.c_str());
                 continue;
             }
 
             std::string sState   = Get_PlayerState();
             std::string sDetails = Get_PlayerInfo();
-
-            logger::debug("Player state>>%s", sState.c_str());
-            logger::debug("Player details>>%s", sDetails.c_str());
 
             SetDiscordPresence(sState.c_str(), sDetails.c_str());
         }
@@ -250,31 +258,5 @@ namespace Hooks
             return;
         }
         discordThread = new std::thread(MainLoop);
-        //SetDiscordPresence("", s_T_LaunchingGame.c_str());
-        //auto initResult = discord::Core::Create(468591679599935490, DiscordCreateFlags_Default, &core);
-        //if (initResult != discord::Result::Ok)
-        //{
-        //    logger::info("Failed to Initialize Discord SDK: {}", std::to_underlying(initResult));
-        //    return;
-        //}
-
-        //logger::info("Hooks installed");
-
-        //discord::Activity activity{};
-        //activity.SetState("Testing");
-        //activity.SetDetails("Fruit Loops");
-
-        //core->ActivityManager().UpdateActivity(
-        //    activity,
-        //    [](discord::Result result) {
-        //        if (result != discord::Result::Ok)
-        //        {
-        //            logger::info("activity set correctly");
-        //        }
-        //        else
-        //        {
-        //            logger::error("activity not ok: {}", std::to_underlying(result));
-        //        }
-        //    });
     }
 } // namespace Hooks

@@ -1,5 +1,4 @@
 #include "Hooks.h"
-#include "Settings.h"
 
 // SFSE message listener, use this to do stuff at specific moments during runtime
 void Listener(SFSE::MessagingInterface::Message* message) noexcept
@@ -9,7 +8,6 @@ void Listener(SFSE::MessagingInterface::Message* message) noexcept
     }
     if (message->type <=> SFSE::MessagingInterface::kPostPostLoad == 0)
     {
-        Settings::LoadSettings();
         Hooks::Install();
     }
 }
