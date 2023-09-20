@@ -17,6 +17,7 @@ void Settings::LoadSettings() noexcept
     bShowShipName       = ini.GetBoolValue("Display", "bShowShipName", true);
     bShowCharacterName  = ini.GetBoolValue("Display", "bShowCharacterName", true);
     bShowCharacterLevel = ini.GetBoolValue("Display", "bShowCharacterLevel", true);
+    bShowLocationInMenu = ini.GetBoolValue("Display", "bShowLocationInMenu", true);
 
     bEnableDebug = ini.GetBoolValue("Log", "bEnableDebug", false);
 

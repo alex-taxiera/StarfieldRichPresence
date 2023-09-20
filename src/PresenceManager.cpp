@@ -2,198 +2,298 @@
 #include "Settings.h"
 #include "Constants.h"
 #include "Discord.h"
+#include "UIMenu.h"
 
-typedef RE::TESObjectCELL*(__fastcall* _GetRefCell)(RE::TESObjectREFR* TargetRef);
-REL::Relocation<_GetRefCell> GetRefCell{ REL::Offset(0x01A093BC) };
+//class TESWorldSpace : public RE::TESForm,    // 00
+//                      public RE::TESFullName // 20
+//{
+//public:
+//    // DEFINE_MEMBER_FN_0(GetWorldspaceName, const char*, 0x012EF550);
+//};
+//
+//class MyCell : public RE::TESObjectCELL
+//{
+//public:
+//    uint16_t       flags; // 48
+//    bool           pad[54];
+//    TESWorldSpace* CellWorldSpace; // 80
+//};
+//static_assert(offsetof(MyCell, flags) == 0x48);
+//static_assert(offsetof(MyCell, pad) == 0x4A);
+//static_assert(offsetof(MyCell, CellWorldSpace) == 0x80);
+
+//typedef TESWorldSpace*(__fastcall* _GetWorldSpace)(RE::TESObjectREFR* TargetRef); // __int64 __fastcall sub_7FF695A3FC84(__int64 a1)
+//REL::Relocation<_GetWorldSpace> GetWorldSpace{ REL::Offset(0x7FF695A3FC84) };
 
 namespace PresenceManager
 {
     namespace
     {
-        std::string Get_PlayerInfo(RE::TESObjectREFR* playerRef, RE::TESActorBaseData* playerActorBaseData)
+        typedef __int64(__fastcall* _sub_1423F985C)(__int64 unk);
+        REL::Relocation<_sub_1423F985C> sub_1423F985C(0x023F985C); // Function to call later
+
+        typedef RE::TESObjectCELL*(__fastcall* _GetRefCell)(RE::TESObjectREFR* TargetRef);
+        REL::Relocation<_GetRefCell> GetRefCell{ REL::Offset(0x01A093BC) };
+
+        typedef bool(__fastcall* _GetItemCount)(RE::TESObjectREFR** TargetREF, RE::TESForm* MyForm, __int64 pad, float* result);
+        REL::Relocation<_GetItemCount> GetItemCount{ REL::Offset(0x01A7A6DC) };
+
+        typedef bool(__fastcall* _GetActorValuePercentage)(RE::Actor** TargetREF, RE::ActorValueInfo* MyForm, __int64 pad, float* result);
+        REL::Relocation<_GetActorValuePercentage> GetActorValuePercentage{ REL::Offset(0x01A733C8) };
+
+        //typedef RE::TESForm* (*_TargetToTrampoline)(uint32_t id);
+        //REL::Relocation<_TargetToTrampoline> targetToTrampoline{ REL::Offset(0x23F447C + 0xCD) };
+        //REL::Relocation<_TargetToTrampoline> targetToTrampoline2{ REL::Offset(0x23322B8 + 0x10) };
+
+        RE::TESActorBaseData* GetPlayerActorBaseData()
+        {
+            auto playerFormBASE = RE::TESForm::LookupByID(0x00000007);
+
+            if (!playerFormBASE)
+            {
+                logger::debug("playerFormBASE is not valid");
+                return NULL;
+            }
+
+            auto playerActorBaseData = starfield_cast<RE::TESActorBaseData*>(playerFormBASE);
+
+            if (!playerActorBaseData)
+            {
+                logger::debug("playerActorBaseData is not valid");
+                return NULL;
+            }
+
+            return playerActorBaseData;
+        }
+
+        std::string BuildDetailsString(RE::Actor* playerActor, RE::TESActorBaseData* playerActorBaseData)
         {
             std::string details{};
 
             logger::debug("getting player name");
-            std::string playerName = playerRef->GetDisplayFullName();
+            std::string playerName = playerActor->GetDisplayFullName();
 
             if (Settings::bShowCharacterName)
             {
-                if (playerName != "Player")
-                {
-                    logger::debug("got player name: {}", playerName);
-                    details = playerName;
-                }
-                else
-                {
-                    details = "Godd Howard";
-                }
+                logger::debug("got player name: {}", playerName);
+                details = playerName;
             }
-            if (Settings::bShowCharacterLevel && playerName != "Player")
+            if (Settings::bShowCharacterLevel)
             {
                 if (Settings::bShowCharacterName)
                 {
                     details += " | ";
                 }
-                details += std::format("{} {}", text.Level, playerActorBaseData->actorData.level);
+                details += std::format("{} {}", Text::Level, playerActorBaseData->actorData.level);
             }
 
             return details;
         }
 
-        std::string Get_PlayerState(RE::TESObjectREFR* playerRef, RE::Actor* playerActor)
+        std::string GetPlayerLocationName(RE::Actor* playerActor)
         {
-            logger::debug("getting player is in space");
-            if (playerRef->IsInSpace())
+            /*if (playerActor->parentCell)
             {
-                logger::debug("player is in space");
-                return text.InSpace;
-            }
+                auto myCell = (MyCell*)playerActor->parentCell;
+                logger::info("my cell form id {} form type {}", myCell->GetFormID(), myCell->GetFormType());
+                logger::info("trying to get world space");
+                auto worldspace = mycell->cellworldspace;
+                logger::info("got world space id {} name {}", worldSpace->GetFormID(), worldSpace->GetFullName());
+            }*/
 
-            std::string state{};
-
-            logger::debug("trying to get spaceship");
-            auto playerShip = playerRef->GetAttachedSpaceship();
-
-            if (playerShip)
+            /*logger::info("trying to get worldspace");
+            auto worldSpace = GetWorldSpace(playerRef);
+            if (worldSpace)
             {
-                logger::debug("got spaceship");
-                state = text.InSpaceship;
+                logger::info("got worldspace");
+                std::string worldSpaceName = worldSpace->GetFullName();
 
-                if (Settings::bShowShipName)
+                if (worldSpaceName.length() > 0)
                 {
-                    std::string shipName = playerShip->GetDisplayFullName();
-                    logger::debug("got ship name: {}", shipName.c_str());
-
-                    if (shipName.length() > 0)
-                    {
-                        state += std::format("({})", shipName);
-                    }
+                    logger::debug("got worldspace name: {}", worldSpaceName.c_str());
+                    state += worldSpaceName;
                 }
+            }*/
 
-                return state;
-            }
-
-            logger::debug("trying to get combat status");
-            bool isInCombat = playerActor->IsInCombat();
-
-            if (isInCombat)
-            {
-                logger::debug("got combat status true");
-                state = text.Fighting + " ";
-            }
-            else
-            {
-                logger::debug("got combat status false");
-                state = text.Exploring + " ";
-            }
+            std::string locationName{};
 
             logger::debug("trying to get ref cell");
-            auto RefCell = GetRefCell(playerRef);
+            auto refCell = GetRefCell(playerActor);
 
-            if (RefCell)
+            if (refCell)
             {
-                logger::debug("got ref cell");
-                std::string cellName = RefCell->GetFullName();
+                logger::debug("got ref cell id {}", refCell->GetFormID());
+                std::string cellName = refCell->GetFullName();
 
                 if (cellName.length() > 0)
                 {
-                    logger::debug("got cell name: {}", cellName.c_str());
-                    state += cellName;
+                    logger::debug("got cell name: {}", cellName);
+                    locationName = cellName;
                 }
             }
-            else if (playerRef->parentCell)
+            else if (playerActor->parentCell)
             {
-                logger::debug("got parent cell");
-                std::string parentCellName = playerRef->parentCell->GetFullName(); // for interiors
+                logger::debug("got parent cell id {}", playerActor->parentCell->GetFormID());
+                std::string parentCellName = playerActor->parentCell->GetFullName(); // for interiors
 
                 if (parentCellName.length() > 0)
                 {
-                    logger::debug("got parent cell name: {}", parentCellName.c_str());
-                    state += parentCellName;
+                    logger::debug("got parent cell name: {}", parentCellName);
+                    locationName = parentCellName;
+                }
+            }
+
+            return locationName;
+        }
+
+        std::string BuildStateString(RE::Actor* playerActor)
+        {
+            bool playerIsOutside = GetRefCell(playerActor);
+
+            std::string state{};
+
+            logger::debug("getting player is in space");
+            if (playerActor->IsInSpace())
+            {
+                logger::debug("player is in space");
+                state = Text::InSpace;
+            }
+
+            if (state.empty())
+            {
+                logger::debug("trying to get spaceship");
+                auto playerShip = playerActor->GetAttachedSpaceship();
+
+                if (playerShip)
+                {
+                    logger::debug("got spaceship");
+                    state = Text::InSpaceship;
+                    std::string shipName = playerShip->GetDisplayFullName();
+
+                    if (Settings::bShowShipName && shipName.length() > 0)
+                    {
+                        logger::debug("got ship name: {}", shipName.c_str());
+                        state = std::format("{} ({})", state, shipName);
+                    }
+                    auto playerLocationName = GetPlayerLocationName(playerActor);
+
+                    state = playerLocationName.empty()
+                        ? state
+                        : std::format("{} | {}", state, playerLocationName);
+                }
+            }
+
+            if (state.empty())
+            {
+                logger::debug("trying to get combat status");
+                bool isInCombat = playerActor->IsInCombat();
+
+                auto playerLocationName = GetPlayerLocationName(playerActor);
+
+                if (isInCombat)
+                {
+                    logger::debug("got combat status true");
+
+                    state = playerLocationName.empty()
+                        ? Text::Fighting
+                        : std::format(
+                            "{} {} {}",
+                            Text::Fighting,
+                            playerIsOutside ? Text::On : Text::In, playerLocationName
+                        );
+                }
+                else
+                {
+                    logger::debug("got combat status false");
+                    state = std::format("{} {}", Text::Exploring, playerLocationName);
                 }
             }
 
             return state;
         }
-
-        void MainLoop()
-        {
-            (*thread).detach();
-            Settings::LoadSettings();
-
-            for (;;)
-            {
-                logger::debug("sleeping for {}", sleepTime);
-                Sleep(sleepTime);
-
-                auto playerRefAsForm = RE::TESForm::LookupByID(0x00000014);
-
-                if (!playerRefAsForm)
-                {
-                    logger::debug("playerRefAsForm is not valid");
-                    continue;
-                }
-
-                auto playerRef = playerRefAsForm->AsReference();
-
-                if (!playerRef)
-                {
-                    logger::debug("playerRef is not valid");
-                    continue;
-                }
-
-                if (!playerRef->parentCell)
-                {
-                    logger::debug("no parentCell, setting presence to main menu");
-
-                    Discord::SetPresence({ .state = text.InMainMenu.c_str() });
-                    continue;
-                }
-
-                auto playerActor = (RE::Actor*)playerRef;
-
-                if (!playerActor)
-                {
-                    logger::debug("playerActor is not valid");
-                    continue;
-                }
-
-                auto playerFormBASE = RE::TESForm::LookupByID(0x00000007);
-
-                if (!playerFormBASE)
-                {
-                    logger::debug("playerFormBASE is not valid");
-                    continue;
-                }
-
-                auto playerActorBaseData = starfield_cast<RE::TESActorBaseData*>(playerFormBASE);
-
-                if (!playerActorBaseData)
-                {
-                    logger::debug("playerActorBaseData is not valid");
-                    continue;
-                }
-
-                logger::debug("All valid - continuing");
-
-                auto sState   = Get_PlayerState(playerRef, playerActor);
-                auto sDetails = Get_PlayerInfo(playerRef, playerActorBaseData);
-
-                Discord::SetPresence({ .state = sState.c_str(), .details = sDetails.c_str() });
-            }
-        }
     }
 
-    void Start() noexcept
+    void HandleLoadInstance()
     {
-        auto ready = Discord::InitializePresence();
-        if (!ready)
+        auto playerActor = RE::Actor::PlayerCharacter();
+
+        if (!playerActor)
         {
-            logger::error("Failed to initialize Discord Rich Presence");
+            logger::debug("playerActor is not valid");
             return;
         }
 
-        thread = new std::thread(MainLoop);
+        auto playerActorBaseData = GetPlayerActorBaseData();
+
+        if (!playerActorBaseData)
+        {
+            logger::debug("playerActorBaseData is not valid");
+            return;
+        }
+
+        logger::debug("All valid - continuing");
+
+        Discord::SetPresence(BuildStateString(playerActor), BuildDetailsString(playerActor, playerActorBaseData));
+    }
+
+    void HandleMenuInteract()
+    {
+        auto ui = RE::UI::GetSingleton();
+
+        for (const auto& menuEntry : UIMenu::menuEntries)
+        {
+            if (ui->IsMenuOpen(menuEntry.menuName))
+            {
+                logger::debug("Menu {} is open", menuEntry.menuName);
+
+                auto playerActor = RE::Actor::PlayerCharacter();
+                std::string state = menuEntry.menuText;
+
+                if (state.empty())
+                {
+                    // do not change presence
+                    return;
+                }
+
+                if (menuEntry.shouldShowLocation && playerActor)
+                {
+                    auto locationName = GetPlayerLocationName(playerActor);
+                    if (!locationName.empty())
+                    {
+                        bool playerIsOutside = GetRefCell(playerActor);
+                        state = std::format(
+                            "{} {} {}",
+                            state,
+                            playerIsOutside ? Text::On : Text::In,
+                            locationName
+                        );
+                    }
+                }
+
+                if (menuEntry.shouldShowDetails)
+                {
+                    auto playerActorBaseData = GetPlayerActorBaseData();
+
+                    if (!playerActorBaseData || !playerActor)
+                    {
+                        Discord::SetState(state);
+                    }
+                    else
+                    {
+                        Discord::SetPresence(state, BuildDetailsString(playerActor, playerActorBaseData));
+                    }
+                }
+                else
+                {
+                    Discord::SetState(state);
+                }
+
+                // handled and in menu
+                return;
+            }
+        }
+
+        // not in a menu, handle as load
+        HandleLoadInstance();
     }
 } // namespace PresenceManager

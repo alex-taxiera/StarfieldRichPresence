@@ -4,8 +4,29 @@
 
 namespace Discord
 {
-    void SetPresence(DiscordRichPresence presence)
+    namespace
     {
+        time_t startTime = 0;
+    }
+
+    void SetState(std::string state)
+    {
+        SetPresence(state, "");
+    }
+
+    void SetDetails(std::string details)
+    {
+        SetPresence("", details);
+    }
+
+    void SetPresence(std::string state, std::string details)
+    {
+        logger::debug("Setting presence");
+        DiscordRichPresence presence = {
+            .state = state.c_str(),
+            .details = details.c_str(),
+        };
+
         if (Settings::bShowTimeElapsed)
         {
             presence.startTimestamp = startTime;
@@ -13,16 +34,16 @@ namespace Discord
 
         if (!presence.largeImageKey)
         {
-            presence.largeImageKey = resources.StarfieldLogo.c_str();
+            presence.largeImageKey = Resources::StarfieldLogo;
         }
 
-        if (presence.state)
+        if (!state.empty())
         {
-            logger::debug("Presence state: {}", presence.state);
+            logger::debug("Presence state: {}", state);
         }
-        if (presence.details)
+        if (!details.empty())
         {
-            logger::debug("Presence details: {}", presence.details);
+            logger::debug("Presence details: {}", details);
         }
 
         Discord_UpdatePresence(&presence);
@@ -37,7 +58,7 @@ namespace Discord
 
         logger::info("Discord Rich Presence initialized");
 
-        SetPresence({ .details = text.LaunchingGame.c_str() });
+        SetDetails(Text::LaunchingGame);
 
         return true;
     }

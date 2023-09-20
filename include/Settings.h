@@ -11,4 +11,5 @@ public:
     inline static bool bShowShipName{};
     inline static bool bShowCharacterName{};
     inline static bool bShowCharacterLevel{};
+    inline static bool bShowLocationInMenu{};
 };

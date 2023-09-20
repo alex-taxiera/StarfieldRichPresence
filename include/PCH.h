@@ -150,9 +150,6 @@
 
 #include "Plugin.h"
 
-#include "discord_register.h"
-#include "discord_rpc.h"
-
 using namespace std::literals;
 using namespace REL::literals;
 

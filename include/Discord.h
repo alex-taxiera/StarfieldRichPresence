@@ -1,13 +1,11 @@
 #pragma once
-#include "Constants.h"
+#include "discord_register.h"
+#include "discord_rpc.h"
 
 namespace Discord
 {
     bool InitializePresence();
-    void SetPresence(DiscordRichPresence presence);
-
-    namespace
-    {
-        time_t startTime = 0;
-    }
+    void SetState(std::string state);
+    void SetDetails(std::string details);
+    void SetPresence(std::string state, std::string details);
 } // namespace Discord

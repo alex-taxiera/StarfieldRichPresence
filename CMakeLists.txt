@@ -35,7 +35,9 @@ set(
   sources
     src/Main.cpp
     src/Settings.cpp
+    src/Hooks.cpp
     src/PresenceManager.cpp
+    src/UIMenu.cpp
     src/Discord.cpp
 
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
@@ -61,6 +63,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${DISCORD_RPC})
 
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
 
+find_path(PLF_NANOTIMER_INCLUDE_DIRS "plf_nanotimer.h")
 find_path(SIMPLEINI_INCLUDE_DIRS "SimpleIni.h")
 
 target_include_directories(
@@ -70,6 +73,7 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>
     $<INSTALL_INTERFACE:src>
     ${SIMPLEINI_INCLUDE_DIRS}
+    ${PLF_NANOTIMER_INCLUDE_DIRS}
 )
 
 target_include_directories(
@@ -83,6 +87,7 @@ target_precompile_headers(
   PRIVATE
     include/PCH.h
     ${SIMPLEINI_INCLUDE_DIRS}/SimpleIni.h
+    ${PLF_NANOTIMER_INCLUDE_DIRS}/plf_nanotimer.h
 )
 
 install(
