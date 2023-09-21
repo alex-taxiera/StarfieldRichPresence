@@ -2,6 +2,5 @@
 
 namespace PresenceManager
 {
-    void HandleMenuInteract();
-    void HandleLoadInstance();
+    void HandleUpdate();
 } // namespace PresenceManager

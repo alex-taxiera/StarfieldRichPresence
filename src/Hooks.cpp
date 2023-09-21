@@ -4,58 +4,36 @@
 
 namespace Hooks
 {
-    namespace
+    namespace Presence
     {
-        plf::nanotimer loopTimer;
+        plf::nanotimer timer;
+
+        uintptr_t addresses[2] = {
+            REL::Relocation(REL::ID(148991), 0xCD).address(), // when menu is opened
+            REL::Relocation(REL::ID(146554), 0x10).address()  // when traveling to a new location (interior/exterior/planet)
+        };
 
         bool ShouldTriggerChange()
         {
-            double elapsedTime = loopTimer.get_elapsed_ms();
-
-            if (elapsedTime < updateDebounceTime)
+            if (timer.get_elapsed_ms() < Constants::updateDebounceTime)
             {
                 return false;
             }
 
-            loopTimer.start();
-
+            timer.start(); // restart timer
             return true;
         }
 
-        class OnOpenMenu
+        struct Hook
         {
-        public:
-            static inline uintptr_t address = REL::Relocation(0x23F447C, 0xCD).address();
-
             static void Thunk(__int64 unk)
             {
                 auto shouldCheck = ShouldTriggerChange();
 
                 if (shouldCheck)
                 {
-                    logger::debug("OnOpenMenu Thunk triggering");
-                    PresenceManager::HandleMenuInteract();
-                }
-
-                func(unk);
-            }
-
-            static inline REL::Relocation<decltype(Thunk)> func;
-        };
-
-        class OnLoadInstance
-        {
-        public:
-            static inline uintptr_t address = REL::Relocation(0x23322B8, 0x10).address();
-
-            static void Thunk(__int64 unk)
-            {
-                auto shouldCheck = ShouldTriggerChange();
-
-                if (shouldCheck)
-                {
-                    logger::debug("OnLoadInstance Thunk triggering");
-                    PresenceManager::HandleLoadInstance();
+                    logger::debug("PresenceHook Thunk triggering");
+                    PresenceManager::HandleUpdate();
                 }
 
                 func(unk);
@@ -68,8 +46,13 @@ namespace Hooks
     void Install() noexcept
     {
         logger::info("Installing hooks");
-        loopTimer.start();
-        SFSE::stl::write_thunk_call<Hooks::OnOpenMenu>();
-        SFSE::stl::write_thunk_call<Hooks::OnLoadInstance>();
+        Presence::timer.start();
+
+        // setup hooks
+        for (const auto& address : Presence::addresses)
+        {
+            logger::debug("Installing Presence hook at {:x}", address);
+            SFSE::stl::write_thunk_call<Presence::Hook>(address);
+        }
     }
 } // namespace Hooks

@@ -7,11 +7,13 @@ void Settings::LoadSettings() noexcept
     CSimpleIniA ini;
 
     ini.SetUnicode();
-    if (ini.LoadFile(R"(.\Data\SFSE\Plugins\StarfieldRichPresence.ini)") <=> 0 < 0)
+    auto rc = ini.LoadFile(R"(.\Data\SFSE\Plugins\StarfieldRichPresence.ini)");
+    if (rc < 0)
     {
         logger::error("ERROR: Failed to load ini");
         return;
     }
+    assert(rc == SI_OK);
 
     bShowTimeElapsed    = ini.GetBoolValue("Display", "bShowTimeElapsed", true);
     bShowShipName       = ini.GetBoolValue("Display", "bShowShipName", true);

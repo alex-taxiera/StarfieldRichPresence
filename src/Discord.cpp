@@ -6,7 +6,7 @@ namespace Discord
 {
     namespace
     {
-        time_t startTime = 0;
+        time_t startTime{};
     }
 
     void SetState(std::string state)
@@ -21,20 +21,19 @@ namespace Discord
 
     void SetPresence(std::string state, std::string details)
     {
-        logger::debug("Setting presence");
         DiscordRichPresence presence = {
             .state = state.c_str(),
             .details = details.c_str(),
+            .largeImageKey = Resources::StarfieldLogo,
         };
 
         if (Settings::bShowTimeElapsed)
         {
+            if (!startTime)
+            {
+                startTime = time(0);
+            }
             presence.startTimestamp = startTime;
-        }
-
-        if (!presence.largeImageKey)
-        {
-            presence.largeImageKey = Resources::StarfieldLogo;
         }
 
         if (!state.empty())
@@ -51,11 +50,9 @@ namespace Discord
 
     bool InitializePresence()
     {
-        startTime = time(0);
         DiscordEventHandlers handlers;
         memset(&handlers, 0, sizeof(handlers));
-        Discord_Initialize(discordAppId.c_str(), &handlers, 1, NULL);
-
+        Discord_Initialize(Constants::discordAppId.c_str(), &handlers, 1, NULL);
         logger::info("Discord Rich Presence initialized");
 
         SetDetails(Text::LaunchingGame);

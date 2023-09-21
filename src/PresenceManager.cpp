@@ -2,7 +2,6 @@
 #include "Settings.h"
 #include "Constants.h"
 #include "Discord.h"
-#include "UIMenu.h"
 
 //class TESWorldSpace : public RE::TESForm,    // 00
 //                      public RE::TESFullName // 20
@@ -29,21 +28,14 @@ namespace PresenceManager
 {
     namespace
     {
-        typedef __int64(__fastcall* _sub_1423F985C)(__int64 unk);
-        REL::Relocation<_sub_1423F985C> sub_1423F985C(0x023F985C); // Function to call later
-
         typedef RE::TESObjectCELL*(__fastcall* _GetRefCell)(RE::TESObjectREFR* TargetRef);
-        REL::Relocation<_GetRefCell> GetRefCell{ REL::Offset(0x01A093BC) };
+        REL::Relocation<_GetRefCell> GetRefCell{ REL::ID(106696) };
 
         typedef bool(__fastcall* _GetItemCount)(RE::TESObjectREFR** TargetREF, RE::TESForm* MyForm, __int64 pad, float* result);
-        REL::Relocation<_GetItemCount> GetItemCount{ REL::Offset(0x01A7A6DC) };
+        REL::Relocation<_GetItemCount> GetItemCount{ REL::ID(108751) };
 
         typedef bool(__fastcall* _GetActorValuePercentage)(RE::Actor** TargetREF, RE::ActorValueInfo* MyForm, __int64 pad, float* result);
-        REL::Relocation<_GetActorValuePercentage> GetActorValuePercentage{ REL::Offset(0x01A733C8) };
-
-        //typedef RE::TESForm* (*_TargetToTrampoline)(uint32_t id);
-        //REL::Relocation<_TargetToTrampoline> targetToTrampoline{ REL::Offset(0x23F447C + 0xCD) };
-        //REL::Relocation<_TargetToTrampoline> targetToTrampoline2{ REL::Offset(0x23322B8 + 0x10) };
+        REL::Relocation<_GetActorValuePercentage> GetActorValuePercentage{ REL::ID(108598) };
 
         RE::TESActorBaseData* GetPlayerActorBaseData()
         {
@@ -205,95 +197,107 @@ namespace PresenceManager
                 else
                 {
                     logger::debug("got combat status false");
-                    state = std::format("{} {}", Text::Exploring, playerLocationName);
+                    state = std::format("{} {}", playerIsOutside ? Text::Exploring : Text::In, playerLocationName);
                 }
             }
 
             return state;
         }
-    }
 
-    void HandleLoadInstance()
-    {
-        auto playerActor = RE::Actor::PlayerCharacter();
-
-        if (!playerActor)
+        bool SetPresenceBasedOnGameState()
         {
-            logger::debug("playerActor is not valid");
-            return;
-        }
+            auto playerActor = RE::Actor::PlayerCharacter();
 
-        auto playerActorBaseData = GetPlayerActorBaseData();
-
-        if (!playerActorBaseData)
-        {
-            logger::debug("playerActorBaseData is not valid");
-            return;
-        }
-
-        logger::debug("All valid - continuing");
-
-        Discord::SetPresence(BuildStateString(playerActor), BuildDetailsString(playerActor, playerActorBaseData));
-    }
-
-    void HandleMenuInteract()
-    {
-        auto ui = RE::UI::GetSingleton();
-
-        for (const auto& menuEntry : UIMenu::menuEntries)
-        {
-            if (ui->IsMenuOpen(menuEntry.menuName))
+            if (!playerActor)
             {
-                logger::debug("Menu {} is open", menuEntry.menuName);
+                logger::debug("playerActor is not valid");
+                return false;
+            }
 
-                auto playerActor = RE::Actor::PlayerCharacter();
-                std::string state = menuEntry.menuText;
+            auto playerActorBaseData = GetPlayerActorBaseData();
 
-                if (state.empty())
+            if (!playerActorBaseData)
+            {
+                logger::debug("playerActorBaseData is not valid");
+                return false;
+            }
+
+            logger::debug("All valid - continuing");
+
+            Discord::SetPresence(BuildStateString(playerActor), BuildDetailsString(playerActor, playerActorBaseData));
+
+            return true;
+        }
+
+        bool SetPresenceBasedOnMenuState()
+        {
+            auto ui = RE::UI::GetSingleton();
+
+            for (const auto& menuEntry : UIMenu::menuEntries)
+            {
+                if (ui->IsMenuOpen(menuEntry.menuName))
                 {
-                    // do not change presence
-                    return;
-                }
+                    logger::debug("Menu {} is open", menuEntry.menuName);
 
-                if (menuEntry.shouldShowLocation && playerActor)
-                {
-                    auto locationName = GetPlayerLocationName(playerActor);
-                    if (!locationName.empty())
+                    std::string state = menuEntry.menuText;
+
+                    if (state.empty())
                     {
-                        bool playerIsOutside = GetRefCell(playerActor);
-                        state = std::format(
-                            "{} {} {}",
-                            state,
-                            playerIsOutside ? Text::On : Text::In,
-                            locationName
-                        );
+                        // do not change presence
+                        return true;
                     }
-                }
 
-                if (menuEntry.shouldShowDetails)
-                {
-                    auto playerActorBaseData = GetPlayerActorBaseData();
+                    auto playerActor = RE::Actor::PlayerCharacter();
 
-                    if (!playerActorBaseData || !playerActor)
+                    if (menuEntry.shouldShowLocation && playerActor)
                     {
-                        Discord::SetState(state);
+                        auto locationName = GetPlayerLocationName(playerActor);
+                        if (!locationName.empty())
+                        {
+                            bool playerIsOutside = GetRefCell(playerActor);
+                            state = std::format(
+                                "{} {} {}",
+                                state,
+                                playerIsOutside ? Text::On : Text::In,
+                                locationName
+                            );
+                        }
+                    }
+
+                    if (menuEntry.shouldShowDetails)
+                    {
+                        auto playerActorBaseData = GetPlayerActorBaseData();
+
+                        if (!playerActorBaseData || !playerActor)
+                        {
+                            Discord::SetState(state);
+                        }
+                        else
+                        {
+                            Discord::SetPresence(state, BuildDetailsString(playerActor, playerActorBaseData));
+                        }
                     }
                     else
                     {
-                        Discord::SetPresence(state, BuildDetailsString(playerActor, playerActorBaseData));
+                        Discord::SetState(state);
                     }
-                }
-                else
-                {
-                    Discord::SetState(state);
-                }
 
-                // handled and in menu
-                return;
+                    // handled and in menu
+                    return true;
+                }
             }
-        }
 
-        // not in a menu, handle as load
-        HandleLoadInstance();
+            return false;
+        }
+    }
+
+    void HandleUpdate()
+    {
+        auto handled = SetPresenceBasedOnMenuState();
+        if (!handled)
+        {
+            // not in a menu, handle as load
+            SetPresenceBasedOnGameState();
+        }
     }
 } // namespace PresenceManager

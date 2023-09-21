@@ -37,7 +37,6 @@ set(
     src/Settings.cpp
     src/Hooks.cpp
     src/PresenceManager.cpp
-    src/UIMenu.cpp
     src/Discord.cpp
 
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
