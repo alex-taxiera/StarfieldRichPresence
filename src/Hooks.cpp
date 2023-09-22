@@ -54,5 +54,7 @@ namespace Hooks
             logger::debug("Installing Presence hook at {:x}", address);
             SFSE::stl::write_thunk_call<Presence::Hook>(address);
         }
+
+        logger::info("Installed hooks");
     }
 } // namespace Hooks

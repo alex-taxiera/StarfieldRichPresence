@@ -1,10 +1,9 @@
 #include "PresenceManager.h"
 #include "Settings.h"
-#include "Constants.h"
 #include "Discord.h"
+#include "Translations.h"
 
-//class TESWorldSpace : public RE::TESForm,    // 00
-//                      public RE::TESFullName // 20
+//class TESWorldSpace : public RE::TESForm
 //{
 //public:
 //    // DEFINE_MEMBER_FN_0(GetWorldspaceName, const char*, 0x012EF550);
@@ -14,12 +13,12 @@
 //{
 //public:
 //    uint16_t       flags; // 48
-//    bool           pad[54];
-//    TESWorldSpace* CellWorldSpace; // 80
+//    bool           pad[22];
+//    TESWorldSpace* CellWorldSpace; // 60
 //};
 //static_assert(offsetof(MyCell, flags) == 0x48);
 //static_assert(offsetof(MyCell, pad) == 0x4A);
-//static_assert(offsetof(MyCell, CellWorldSpace) == 0x80);
+//static_assert(offsetof(MyCell, CellWorldSpace) == 0x60);
 
 //typedef TESWorldSpace*(__fastcall* _GetWorldSpace)(RE::TESObjectREFR* TargetRef); // __int64 __fastcall sub_7FF695A3FC84(__int64 a1)
 //REL::Relocation<_GetWorldSpace> GetWorldSpace{ REL::Offset(0x7FF695A3FC84) };
@@ -76,7 +75,7 @@ namespace PresenceManager
                 {
                     details += " | ";
                 }
-                details += std::format("{} {}", Text::Level, playerActorBaseData->actorData.level);
+                details += std::format("{} {}", Translations::Text::Level, playerActorBaseData->actorData.level);
             }
 
             return details;
@@ -115,6 +114,26 @@ namespace PresenceManager
             if (refCell)
             {
                 logger::debug("got ref cell id {}", refCell->GetFormID());
+
+                //auto refCellWorldSpace = refCell->CellWorldSpace;
+                //if (refCellWorldSpace)
+                //{
+                //    logger::debug("got ref cell world space id {}", refCellWorldSpace->GetFormID());
+                //    auto refCellWorldSpaceRef = refCellWorldSpace->AsReference();
+
+                //    if (refCellWorldSpaceRef)
+                //    {
+                //        logger::debug("got ref cell world space ref id {}", refCellWorldSpaceRef->GetFormID());
+                //        std::string worldSpaceName = refCellWorldSpaceRef->GetDisplayFullName();
+
+                //        if (worldSpaceName.length() > 0)
+                //        {
+                //            logger::debug("got world space name: {}", worldSpaceName.c_str());
+                //            locationName = worldSpaceName;
+                //        }
+                //    }
+                //}
+
                 std::string cellName = refCell->GetFullName();
 
                 if (cellName.length() > 0)
@@ -126,6 +145,27 @@ namespace PresenceManager
             else if (playerActor->parentCell)
             {
                 logger::debug("got parent cell id {}", playerActor->parentCell->GetFormID());
+
+                //auto mycell = starfield_cast<MyCell*>(playerActor->parentCell);
+                //auto parentCellWorldSpace = mycell->CellWorldSpace;
+                //if (parentCellWorldSpace)
+                //{
+                //    logger::debug("got parent cell world space id {}", parentCellWorldSpace->GetFormID());
+                //    auto parentCellWorldSpaceRef = parentCellWorldSpace->AsReference();
+
+                //    if (parentCellWorldSpaceRef)
+                //    {
+                //        logger::debug("got parent cell world space ref id {}", parentCellWorldSpaceRef->GetFormID());
+                //        std::string worldSpaceName = parentCellWorldSpaceRef->GetDisplayFullName();
+
+                //        if (worldSpaceName.length() > 0)
+                //        {
+                //            logger::debug("got world space name: {}", worldSpaceName.c_str());
+                //            locationName = worldSpaceName;
+                //        }
+                //    }
+                //}
+
                 std::string parentCellName = playerActor->parentCell->GetFullName(); // for interiors
 
                 if (parentCellName.length() > 0)
@@ -148,7 +188,7 @@ namespace PresenceManager
             if (playerActor->IsInSpace())
             {
                 logger::debug("player is in space");
-                state = Text::InSpace;
+                state = Translations::Text::InSpace;
             }
 
             if (state.empty())
@@ -159,7 +199,7 @@ namespace PresenceManager
                 if (playerShip)
                 {
                     logger::debug("got spaceship");
-                    state = Text::InSpaceship;
+                    state = Translations::Text::InSpaceship;
                     std::string shipName = playerShip->GetDisplayFullName();
 
                     if (Settings::bShowShipName && shipName.length() > 0)
@@ -187,17 +227,17 @@ namespace PresenceManager
                     logger::debug("got combat status true");
 
                     state = playerLocationName.empty()
-                        ? Text::Fighting
+                        ? Translations::Text::Fighting
                         : std::format(
                             "{} {} {}",
-                            Text::Fighting,
-                            playerIsOutside ? Text::On : Text::In, playerLocationName
+                            Translations::Text::Fighting,
+                            playerIsOutside ? Translations::Text::On : Translations::Text::In, playerLocationName
                         );
                 }
                 else
                 {
                     logger::debug("got combat status false");
-                    state = std::format("{} {}", playerIsOutside ? Text::Exploring : Text::In, playerLocationName);
+                    state = std::format("{} {}", Translations::Text::Exploring, playerLocationName);
                 }
             }
 
@@ -233,7 +273,7 @@ namespace PresenceManager
         {
             auto ui = RE::UI::GetSingleton();
 
-            for (const auto& menuEntry : UIMenu::menuEntries)
+            for (const auto& menuEntry : Translations::UIMenu::menuEntries)
             {
                 if (ui->IsMenuOpen(menuEntry.menuName))
                 {
@@ -258,7 +298,7 @@ namespace PresenceManager
                             state = std::format(
                                 "{} {} {}",
                                 state,
-                                playerIsOutside ? Text::On : Text::In,
+                                playerIsOutside ? Translations::Text::On : Translations::Text::In,
                                 locationName
                             );
                         }
