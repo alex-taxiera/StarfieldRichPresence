@@ -26,7 +26,7 @@ namespace Hooks
 
         struct Hook
         {
-            static void Thunk(__int64 unk)
+            static void thunk(__int64 unk)
             {
                 auto shouldCheck = ShouldTriggerChange();
 
@@ -39,7 +39,7 @@ namespace Hooks
                 func(unk);
             }
 
-            static inline REL::Relocation<decltype(Thunk)> func;
+            static inline REL::Relocation<decltype(thunk)> func;
         };
     }
 
