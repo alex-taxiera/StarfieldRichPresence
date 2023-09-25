@@ -15,11 +15,12 @@ void Settings::LoadSettings() noexcept
     }
     assert(rc == SI_OK);
 
-    bShowTimeElapsed    = ini.GetBoolValue("Display", "bShowTimeElapsed", true);
-    bShowShipName       = ini.GetBoolValue("Display", "bShowShipName", true);
-    bShowCharacterName  = ini.GetBoolValue("Display", "bShowCharacterName", true);
-    bShowCharacterLevel = ini.GetBoolValue("Display", "bShowCharacterLevel", true);
-    bShowLocationInMenu = ini.GetBoolValue("Display", "bShowLocationInMenu", true);
+    bShowTimeElapsed        = ini.GetBoolValue("Display", "bShowTimeElapsed", true);
+    bShowShipName           = ini.GetBoolValue("Display", "bShowShipName", true);
+    bShowCharacterName      = ini.GetBoolValue("Display", "bShowCharacterName", true);
+    bShowCharacterLevel     = ini.GetBoolValue("Display", "bShowCharacterLevel", true);
+    bShowLocationInMenu     = ini.GetBoolValue("Display", "bShowLocationInMenu", true);
+    bShowPlanetWhileOutside = ini.GetBoolValue("Display", "bShowPlanetWhileOutside", true);
 
     bEnableDebug = ini.GetBoolValue("Log", "bEnableDebug", false);
 

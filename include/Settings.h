@@ -11,6 +11,7 @@ public:
     inline static bool bShowCharacterName{};
     inline static bool bShowCharacterLevel{};
     inline static bool bShowLocationInMenu{};
+    inline static bool bShowPlanetWhileOutside{};
 
     // Log
     inline static bool bEnableDebug{};

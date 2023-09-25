@@ -3,33 +3,10 @@
 #include "Discord.h"
 #include "Translations.h"
 
-//class TESWorldSpace : public RE::TESForm
-//{
-//public:
-//    // DEFINE_MEMBER_FN_0(GetWorldspaceName, const char*, 0x012EF550);
-//};
-//
-//class MyCell : public RE::TESObjectCELL
-//{
-//public:
-//    uint16_t       flags; // 48
-//    bool           pad[22];
-//    TESWorldSpace* CellWorldSpace; // 60
-//};
-//static_assert(offsetof(MyCell, flags) == 0x48);
-//static_assert(offsetof(MyCell, pad) == 0x4A);
-//static_assert(offsetof(MyCell, CellWorldSpace) == 0x60);
-
-//typedef TESWorldSpace*(__fastcall* _GetWorldSpace)(RE::TESObjectREFR* TargetRef); // __int64 __fastcall sub_7FF695A3FC84(__int64 a1)
-//REL::Relocation<_GetWorldSpace> GetWorldSpace{ REL::Offset(0x7FF695A3FC84) };
-
 namespace PresenceManager
 {
     namespace
     {
-        typedef RE::TESObjectCELL*(__fastcall* _GetRefCell)(RE::TESObjectREFR* TargetRef);
-        REL::Relocation<_GetRefCell> GetRefCell{ REL::ID(106696) };
-
         typedef bool(__fastcall* _GetItemCount)(RE::TESObjectREFR** TargetREF, RE::TESForm* MyForm, __int64 pad, float* result);
         REL::Relocation<_GetItemCount> GetItemCount{ REL::ID(108751) };
 
@@ -83,135 +60,65 @@ namespace PresenceManager
 
         std::string GetPlayerLocationName(RE::Actor* playerActor)
         {
-            /*if (playerActor->parentCell)
-            {
-                auto myCell = (MyCell*)playerActor->parentCell;
-                logger::info("my cell form id {} form type {}", myCell->GetFormID(), myCell->GetFormType());
-                logger::info("trying to get world space");
-                auto worldspace = mycell->cellworldspace;
-                logger::info("got world space id {} name {}", worldSpace->GetFormID(), worldSpace->GetFullName());
-            }*/
-
-            /*logger::info("trying to get worldspace");
-            auto worldSpace = GetWorldSpace(playerRef);
-            if (worldSpace)
-            {
-                logger::info("got worldspace");
-                std::string worldSpaceName = worldSpace->GetFullName();
-
-                if (worldSpaceName.length() > 0)
-                {
-                    logger::debug("got worldspace name: {}", worldSpaceName.c_str());
-                    state += worldSpaceName;
-                }
-            }*/
-
             std::string locationName{};
-
-            logger::debug("trying to get ref cell");
-            auto refCell = GetRefCell(playerActor);
-
-            if (refCell)
+            auto location = playerActor->GetCurrentLocation();
+            if (location)
             {
-                logger::debug("got ref cell id {}", refCell->GetFormID());
-
-                //auto refCellWorldSpace = refCell->CellWorldSpace;
-                //if (refCellWorldSpace)
-                //{
-                //    logger::debug("got ref cell world space id {}", refCellWorldSpace->GetFormID());
-                //    auto refCellWorldSpaceRef = refCellWorldSpace->AsReference();
-
-                //    if (refCellWorldSpaceRef)
-                //    {
-                //        logger::debug("got ref cell world space ref id {}", refCellWorldSpaceRef->GetFormID());
-                //        std::string worldSpaceName = refCellWorldSpaceRef->GetDisplayFullName();
-
-                //        if (worldSpaceName.length() > 0)
-                //        {
-                //            logger::debug("got world space name: {}", worldSpaceName.c_str());
-                //            locationName = worldSpaceName;
-                //        }
-                //    }
-                //}
-
-                std::string cellName = refCell->GetFullName();
-
-                if (cellName.length() > 0)
-                {
-                    logger::debug("got cell name: {}", cellName);
-                    locationName = cellName;
-                }
+                locationName = location->GetFullName();
             }
-            else if (playerActor->parentCell)
-            {
-                logger::debug("got parent cell id {}", playerActor->parentCell->GetFormID());
-
-                //auto mycell = starfield_cast<MyCell*>(playerActor->parentCell);
-                //auto parentCellWorldSpace = mycell->CellWorldSpace;
-                //if (parentCellWorldSpace)
-                //{
-                //    logger::debug("got parent cell world space id {}", parentCellWorldSpace->GetFormID());
-                //    auto parentCellWorldSpaceRef = parentCellWorldSpace->AsReference();
-
-                //    if (parentCellWorldSpaceRef)
-                //    {
-                //        logger::debug("got parent cell world space ref id {}", parentCellWorldSpaceRef->GetFormID());
-                //        std::string worldSpaceName = parentCellWorldSpaceRef->GetDisplayFullName();
-
-                //        if (worldSpaceName.length() > 0)
-                //        {
-                //            logger::debug("got world space name: {}", worldSpaceName.c_str());
-                //            locationName = worldSpaceName;
-                //        }
-                //    }
-                //}
-
-                std::string parentCellName = playerActor->parentCell->GetFullName(); // for interiors
-
-                if (parentCellName.length() > 0)
-                {
-                    logger::debug("got parent cell name: {}", parentCellName);
-                    locationName = parentCellName;
-                }
-            }
-
             return locationName;
+        }
+
+        std::string GetPlayerParentWorldSpaceName(RE::Actor* playerActor)
+        {
+            std::string parentWorldSpaceName{};
+            auto actorParentWorldSpace = playerActor->GetParentWorldSpace();
+            if (actorParentWorldSpace)
+            {
+                parentWorldSpaceName = actorParentWorldSpace->GetFullName();
+            }
+            return parentWorldSpaceName;
         }
 
         std::string BuildStateString(RE::Actor* playerActor)
         {
-            bool playerIsOutside = GetRefCell(playerActor);
-
             std::string state{};
 
-            logger::debug("getting player is in space");
-            if (playerActor->IsInSpace())
+            if (playerActor->IsInSpace(false))
             {
                 logger::debug("player is in space");
+                auto playerLocationName         = GetPlayerLocationName(playerActor);
+                auto playerParentWorldSpaceName = GetPlayerParentWorldSpaceName(playerActor);
+                logger::debug("playerLocationName: {}", playerLocationName);
+                logger::debug("playerParentWorldSpaceName: {}", playerParentWorldSpaceName);
+
                 state = Translations::Text::InSpace;
             }
 
             if (state.empty())
             {
-                logger::debug("trying to get spaceship");
-                auto playerShip = playerActor->GetAttachedSpaceship();
+                auto playerShip = playerActor->GetSpaceship();
 
                 if (playerShip)
                 {
-                    logger::debug("got spaceship");
+                    logger::debug("player is in spaceship");
                     state = Translations::Text::InSpaceship;
                     std::string shipName = playerShip->GetDisplayFullName();
 
-                    if (Settings::bShowShipName && shipName.length() > 0)
+                    if (Settings::bShowShipName && !shipName.empty())
                     {
-                        logger::debug("got ship name: {}", shipName.c_str());
+                        logger::debug("shipName: {}", shipName.c_str());
                         state = std::format("{} ({})", state, shipName);
                     }
-                    auto playerLocationName = GetPlayerLocationName(playerActor);
 
-                    state = playerLocationName.empty()
-                        ? state
-                        : std::format("{} | {}", state, playerLocationName);
+                    auto playerLocationName         = GetPlayerLocationName(playerActor);
+                    auto playerParentWorldSpaceName = GetPlayerParentWorldSpaceName(playerActor);
+                    logger::debug("playerLocationName: {}", playerLocationName);
+                    logger::debug("playerParentWorldSpaceName: {}", playerParentWorldSpaceName);
+
+                    //state = playerLocationName.empty()
+                    //    ? state
+                    //    : std::format("{} | {}", state, playerLocationName);
                 }
             }
 
@@ -225,6 +132,7 @@ namespace PresenceManager
                 if (isInCombat)
                 {
                     logger::debug("got combat status true");
+                    bool playerIsOutside = playerActor->parentCell;
 
                     state = playerLocationName.empty()
                         ? Translations::Text::Fighting
@@ -237,7 +145,18 @@ namespace PresenceManager
                 else
                 {
                     logger::debug("got combat status false");
-                    state = std::format("{} {}", Translations::Text::Exploring, playerLocationName);
+                    auto playerParentWorldSpaceName = GetPlayerParentWorldSpaceName(playerActor);
+
+                    logger::debug("{} | {}", playerLocationName, playerParentWorldSpaceName);
+
+                    if (!playerParentWorldSpaceName.empty() && Settings::bShowPlanetWhileOutside)
+                    {
+                        state = std::format("{} {} | {}", Translations::Text::Exploring, playerLocationName, playerParentWorldSpaceName);
+                    }
+                    else
+                    {
+                        state = std::format("{} {}", Translations::Text::Exploring, playerLocationName);
+                    }
                 }
             }
 
@@ -294,7 +213,7 @@ namespace PresenceManager
                         auto locationName = GetPlayerLocationName(playerActor);
                         if (!locationName.empty())
                         {
-                            bool playerIsOutside = GetRefCell(playerActor);
+                            bool playerIsOutside = playerActor->parentCell;
                             state = std::format(
                                 "{} {} {}",
                                 state,
