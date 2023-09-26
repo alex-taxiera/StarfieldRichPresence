@@ -9,8 +9,9 @@ namespace Translations
         static constexpr const char* LaunchingGame = "Launching Game";
         static constexpr const char* Exploring     = "Exploring";
         static constexpr const char* Fighting      = "Fighting";
-        static constexpr const char* InSpace       = "In Space";
-        static constexpr const char* InSpaceship   = "In Spaceship";
+        static constexpr const char* InSpace       = "In outer space";
+        static constexpr const char* InSpaceship   = "In ship";
+        static constexpr const char* PilotingSpaceship = "Piloting ship";
         static constexpr const char* Level         = "Lv";
         static constexpr const char* In            = "in";
         static constexpr const char* On            = "on";

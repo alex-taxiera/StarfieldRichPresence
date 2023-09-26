@@ -7,12 +7,6 @@ namespace PresenceManager
 {
     namespace
     {
-        typedef bool(__fastcall* _GetItemCount)(RE::TESObjectREFR** TargetREF, RE::TESForm* MyForm, __int64 pad, float* result);
-        REL::Relocation<_GetItemCount> GetItemCount{ REL::ID(108751) };
-
-        typedef bool(__fastcall* _GetActorValuePercentage)(RE::Actor** TargetREF, RE::ActorValueInfo* MyForm, __int64 pad, float* result);
-        REL::Relocation<_GetActorValuePercentage> GetActorValuePercentage{ REL::ID(108598) };
-
         RE::TESActorBaseData* GetPlayerActorBaseData()
         {
             auto playerFormBASE = RE::TESForm::LookupByID(0x00000007);
@@ -84,7 +78,11 @@ namespace PresenceManager
         {
             std::string state{};
 
-            if (playerActor->IsInSpace(false))
+            auto spaceship          = playerActor->GetSpaceship();
+            bool isInCombat         = playerActor->IsInCombat();
+            auto playerLocationName = GetPlayerLocationName(playerActor);
+
+            /*if (playerActor->IsInSpace(false))
             {
                 logger::debug("player is in space");
                 auto playerLocationName         = GetPlayerLocationName(playerActor);
@@ -93,60 +91,63 @@ namespace PresenceManager
                 logger::debug("playerParentWorldSpaceName: {}", playerParentWorldSpaceName);
 
                 state = Translations::Text::InSpace;
-            }
+            }*/
 
-            if (state.empty())
+            if (spaceship)
             {
-                auto playerShip = playerActor->GetSpaceship();
-
-                if (playerShip)
-                {
-                    logger::debug("player is in spaceship");
-                    state = Translations::Text::InSpaceship;
-                    std::string shipName = playerShip->GetDisplayFullName();
-
-                    if (Settings::bShowShipName && !shipName.empty())
-                    {
-                        logger::debug("shipName: {}", shipName.c_str());
-                        state = std::format("{} ({})", state, shipName);
-                    }
-
-                    auto playerLocationName         = GetPlayerLocationName(playerActor);
-                    auto playerParentWorldSpaceName = GetPlayerParentWorldSpaceName(playerActor);
-                    logger::debug("playerLocationName: {}", playerLocationName);
-                    logger::debug("playerParentWorldSpaceName: {}", playerParentWorldSpaceName);
-
-                    //state = playerLocationName.empty()
-                    //    ? state
-                    //    : std::format("{} | {}", state, playerLocationName);
-                }
-            }
-
-            if (state.empty())
-            {
-                logger::debug("trying to get combat status");
-                bool isInCombat = playerActor->IsInCombat();
-
-                auto playerLocationName = GetPlayerLocationName(playerActor);
+                std::string shipName       = spaceship->GetDisplayFullName();
+                auto        pilot          = spaceship->GetSpaceshipPilot();
+                bool        isPiloting     = pilot && pilot == playerActor;
+                bool        isInPlayerShip = playerLocationName == "Ship";
 
                 if (isInCombat)
                 {
-                    logger::debug("got combat status true");
-                    bool playerIsOutside = playerActor->parentCell;
-
-                    state = playerLocationName.empty()
-                        ? Translations::Text::Fighting
-                        : std::format(
-                            "{} {} {}",
-                            Translations::Text::Fighting,
-                            playerIsOutside ? Translations::Text::On : Translations::Text::In, playerLocationName
-                        );
+                    state = std::format("{} {} {}", Translations::Text::Fighting, Translations::Text::On, !isInPlayerShip || Settings::bShowShipName ? shipName : "ship");
+                }
+                else if (isPiloting)
+                {
+                    if (isInPlayerShip && !Settings::bShowShipName)
+                    {
+                        state = Translations::Text::PilotingSpaceship;
+                    }
+                    else
+                    {
+                        state = std::format("{} ({})", Translations::Text::PilotingSpaceship, shipName);
+                    }
+                }
+                else if (isInPlayerShip)
+                {
+                    if (Settings::bShowShipName)
+                    {
+                        state = std::format("{} ({})", Translations::Text::InSpaceship, shipName);
+                    }
+                    else
+                    {
+                        state = Translations::Text::InSpaceship;
+                    }
                 }
                 else
                 {
-                    logger::debug("got combat status false");
-                    auto playerParentWorldSpaceName = GetPlayerParentWorldSpaceName(playerActor);
+                    state = std::format("{} {}", Translations::Text::Exploring, shipName);
+                }
+            }
+            else
+            {
+                auto playerParentWorldSpaceName = GetPlayerParentWorldSpaceName(playerActor);
 
+                if (isInCombat)
+                {
+                    if (!playerParentWorldSpaceName.empty() && Settings::bShowPlanetWhileOutside)
+                    {
+                        state = std::format("{} {} {} | {}", Translations::Text::Fighting, Translations::Text::At, playerLocationName, playerParentWorldSpaceName);
+                    }
+                    else
+                    {
+                        state = std::format("{} {} {}", Translations::Text::Fighting, Translations::Text::On, playerLocationName);
+                    }
+                }
+                else
+                {
                     logger::debug("{} | {}", playerLocationName, playerParentWorldSpaceName);
 
                     if (!playerParentWorldSpaceName.empty() && Settings::bShowPlanetWhileOutside)
@@ -169,7 +170,6 @@ namespace PresenceManager
 
             if (!playerActor)
             {
-                logger::debug("playerActor is not valid");
                 return false;
             }
 
@@ -177,14 +177,10 @@ namespace PresenceManager
 
             if (!playerActorBaseData)
             {
-                logger::debug("playerActorBaseData is not valid");
                 return false;
             }
 
-            logger::debug("All valid - continuing");
-
             Discord::SetPresence(BuildStateString(playerActor), BuildDetailsString(playerActor, playerActorBaseData));
-
             return true;
         }
 
@@ -211,13 +207,14 @@ namespace PresenceManager
                     if (menuEntry.shouldShowLocation && playerActor)
                     {
                         auto locationName = GetPlayerLocationName(playerActor);
+
                         if (!locationName.empty())
                         {
-                            bool playerIsOutside = playerActor->parentCell;
+                            bool playerIsInside = playerActor->parentCell;
                             state = std::format(
                                 "{} {} {}",
                                 state,
-                                playerIsOutside ? Translations::Text::On : Translations::Text::In,
+                                playerIsInside ? Translations::Text::In : Translations::Text::On,
                                 locationName
                             );
                         }

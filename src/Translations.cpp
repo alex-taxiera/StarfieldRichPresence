@@ -21,6 +21,7 @@ void Translations::LoadTranslations()
         Text::Fighting = ini.GetStringValue("Translation", "Fighting", Text::Fighting);
         Text::InSpace = ini.GetStringValue("Translation", "InSpace", Text::InSpace);
         Text::InSpaceship = ini.GetStringValue("Translation", "InSpaceship", Text::InSpaceship);
+        Text::PilotingSpaceship = ini.GetStringValue("Translation", "PilotingSpaceship", Text::PilotingSpaceship);
         Text::Level = ini.GetStringValue("Translation", "Level", Text::Level);
         Text::In = ini.GetStringValue("Translation", "In", Text::In);
         Text::On = ini.GetStringValue("Translation", "On", Text::On);
