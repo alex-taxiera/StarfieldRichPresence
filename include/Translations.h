@@ -2,36 +2,36 @@
 
 namespace Translations
 {
-    static void LoadTranslations() noexcept;
+    void LoadTranslations() noexcept;
 
     namespace Text
     {
-        static constexpr const char* LaunchingGame = "Launching Game";
-        static constexpr const char* Exploring     = "Exploring";
-        static constexpr const char* Fighting      = "Fighting";
-        static constexpr const char* InSpace       = "In outer space";
-        static constexpr const char* InSpaceship   = "In ship";
-        static constexpr const char* PilotingSpaceship = "Piloting ship";
-        static constexpr const char* Level         = "Lv";
-        static constexpr const char* In            = "in";
-        static constexpr const char* On            = "on";
-        static constexpr const char* At            = "at";
+        static const char* LaunchingGame = "Launching Game";
+        static const char* Exploring     = "Exploring";
+        static const char* Fighting      = "Fighting";
+        static const char* InSpace       = "In outer space";
+        static const char* InSpaceship   = "In ship";
+        static const char* PilotingSpaceship = "Piloting ship";
+        static const char* Level         = "Lv";
+        static const char* In            = "in";
+        static const char* On            = "on";
+        static const char* At            = "at";
         // Menu specific
-        static constexpr const char* InMainMenu    = "In Main Menu";
-        static constexpr const char* PauseMenu    = "Paused";
-        static constexpr const char* SleepWaitMenu    = "Sleeping";
-        static constexpr const char* PickpocketMenu    = "Pickpocketing";
-        static constexpr const char* LockpickingMenu    = "Lockpicking";
-        static constexpr const char* SkillsMenu    = "Checking perks";
-        static constexpr const char* GalaxyStarMapMenu    = "Gazing at starmap";
-        static constexpr const char* PhotoModeMenu    = "Taking a photo";
-        static constexpr const char* PhotoGalleryMenu    = "Looking at photos";
-        static constexpr const char* BSMissionMenu    = "Looking at the quest log";
-        static constexpr const char* PowersMenu    = "Looking at powers";
-        static constexpr const char* InventoryMenu    = "Checking inventory";
-        static constexpr const char* ChargenMenu    = "Creating a character";
-        static constexpr const char* SpaceshipEditorMenu    = "Looking at ships";
-        static constexpr const char* DataMenu    = "In menus";
+        static const char* InMainMenu    = "In Main Menu";
+        static const char* PauseMenu    = "Paused";
+        static const char* SleepWaitMenu    = "Sleeping";
+        static const char* PickpocketMenu    = "Pickpocketing";
+        static const char* LockpickingMenu    = "Lockpicking";
+        static const char* SkillsMenu    = "Checking perks";
+        static const char* GalaxyStarMapMenu    = "Gazing at starmap";
+        static const char* PhotoModeMenu    = "Taking a photo";
+        static const char* PhotoGalleryMenu    = "Looking at photos";
+        static const char* BSMissionMenu    = "Looking at the quest log";
+        static const char* PowersMenu    = "Looking at powers";
+        static const char* InventoryMenu    = "Checking inventory";
+        static const char* ChargenMenu    = "Creating a character";
+        static const char* SpaceshipEditorMenu    = "Looking at ships";
+        static const char* DataMenu    = "In menus";
     };
 
     namespace UIMenu

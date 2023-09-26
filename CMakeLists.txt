@@ -33,11 +33,12 @@ set(
 
 set(
   sources
-    src/Main.cpp
-    src/Settings.cpp
-    src/Hooks.cpp
-    src/PresenceManager.cpp
     src/Discord.cpp
+    src/Hooks.cpp
+    src/Main.cpp
+    src/PresenceManager.cpp
+    src/Settings.cpp
+    src/Translations.cpp
 
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
