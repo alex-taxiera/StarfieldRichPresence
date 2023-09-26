@@ -55,7 +55,6 @@ add_commonlibsf_plugin(
   ${PROJECT_NAME}
   AUTHOR "Alex Taxiera"
   SOURCES ${headers} ${sources}
-  USE_ADDRESS_LIBRARY
 )
 
 find_library(DISCORD_RPC discord-rpc)

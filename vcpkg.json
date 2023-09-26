@@ -14,7 +14,7 @@
       {
         "kind": "git",
         "repository": "https://github.com/Starfield-Reverse-Engineering/Starfield-RE-vcpkg",
-        "baseline": "205e0547b54fdfa813a5c87eb6ecaf88c1a90758",
+        "baseline": "da6c080f9658512a48bc3cbec74824853de3ee7b",
         "packages": [ "commonlibsf" ]
       }
     ]
