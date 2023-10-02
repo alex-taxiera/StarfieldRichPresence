@@ -135,7 +135,7 @@ namespace PresenceManager
                         std::string grandParentLocationName = grandParentLocation->GetFullName();
                         if (strcmp(grandParentLocation->GetFullName(), "Universe") == 0) // if the grand parent is the universe, then the parent is a system
                         {
-                            parentLocationName = std::format("{} {}", parentLocationName, Translations::strings[Translations::Keys::System]);
+                            parentLocationName = std::vformat(Translations::strings[Translations::Keys::SystemNameTemplate], std::make_format_args(parentLocationName, Translations::strings[Translations::Keys::System]));
                         }
                     }
                 }

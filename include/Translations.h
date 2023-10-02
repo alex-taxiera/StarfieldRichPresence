@@ -37,6 +37,7 @@ public:
         DataMenu,
         CharacterNameAndLevelTemplate,
         LevelTemplate,
+        SystemNameTemplate,
     };
 
     inline static const std::map<Keys, const char*> translationKeys = {
@@ -70,6 +71,7 @@ public:
         { DataMenu,                      "sDataMenu"                      },
         { CharacterNameAndLevelTemplate, "sCharacterNameAndLevelTemplate" },
         { LevelTemplate,                 "sLevelTemplate"                 },
+        { SystemNameTemplate,            "sSystemNameTemplate"            },
     };
     inline static std::map<Keys, std::string> strings = {
         {LaunchingGame,                  "Launching game"          },
@@ -101,7 +103,8 @@ public:
         { SpaceshipEditorMenu,           "Looking at ships"        },
         { DataMenu,                      "In menus"                },
         { CharacterNameAndLevelTemplate, "{0} | {1} {2}"           },
-        { LevelTemplate,                 "{} {}"                   },
+        { LevelTemplate,                 "{0} {1}"                 },
+        { SystemNameTemplate,            "{0} {1}"                 },
     };
 
     struct MenuEntry
