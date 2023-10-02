@@ -1,4 +1,5 @@
 #include "PresenceManager.h"
+#include "Constants.h"
 #include "Settings.h"
 #include "Discord.h"
 #include "Translations.h"
@@ -13,7 +14,6 @@ namespace PresenceManager
 
             if (!playerFormBASE)
             {
-                logger::debug("playerFormBASE is not valid");
                 return NULL;
             }
 
@@ -21,7 +21,6 @@ namespace PresenceManager
 
             if (!playerActorBaseData)
             {
-                logger::debug("playerActorBaseData is not valid");
                 return NULL;
             }
 
@@ -213,8 +212,6 @@ namespace PresenceManager
             }
             else
             {
-                auto playerParentWorldSpaceName = GetPlayerParentWorldSpaceName(playerActor);
-
                 if (isInCombat)
                 {
                     if (!playerParentLocationName.empty() && Settings::bShowPlanetWhileOutside)
@@ -244,7 +241,27 @@ namespace PresenceManager
             return state;
         }
 
-        bool SetPresenceBasedOnGameState()
+        void SetPresenceWithCompanion(std::string state, std::string details, RE::Actor* companion)
+        {
+            std::uint32_t companionId   = companion->GetFormID();
+            auto          companionName = companion->GetDisplayFullName();
+
+            logger::debug("companion: {}, id {:x}", companionName, companionId);
+
+            if (companionId && companionName)
+            {
+                auto& companionData = Resources::companionDataMap.at(companionId);
+                if (!companionData.smallImageKey.empty())
+                {
+                    Discord::SetPresence(state, details, companionData.smallImageKey, std::format("{} {}", Translations::Text::TravellingWith, companionName));
+                    return;
+                }
+            }
+
+            Discord::SetPresence(state, details);
+        }
+
+        bool SetPresenceBasedOnGameState(RE::Actor* companion)
         {
             auto playerActor = RE::PlayerCharacter::GetSingleton();
 
@@ -260,11 +277,19 @@ namespace PresenceManager
                 return false;
             }
 
-            Discord::SetPresence(BuildStateString(), BuildDetailsString(playerActorBaseData));
+            if (companion)
+            {
+                SetPresenceWithCompanion(BuildStateString(), BuildDetailsString(playerActorBaseData), companion);
+            }
+            else
+            {
+                Discord::SetPresence(BuildStateString(), BuildDetailsString(playerActorBaseData));
+            }
+
             return true;
         }
 
-        bool SetPresenceBasedOnMenuState()
+        bool SetPresenceBasedOnMenuState(RE::Actor* companion)
         {
             auto ui = RE::UI::GetSingleton();
 
@@ -308,6 +333,10 @@ namespace PresenceManager
                         {
                             Discord::SetState(state);
                         }
+                        else if (companion)
+                        {
+                            SetPresenceWithCompanion(state, BuildDetailsString(playerActorBaseData), companion);
+                        }
                         else
                         {
                             Discord::SetPresence(state, BuildDetailsString(playerActorBaseData));
@@ -327,13 +356,35 @@ namespace PresenceManager
         }
     }
 
+    RE::Actor* GetActiveCompanion()
+    {
+        RE::Actor* companion{};
+
+        //auto eliteCrewList = (RE::BGSListForm*)RE::TESForm::LookupByID(0x00133A67);
+
+        for (auto const& companionRefId : std::views::keys(Resources::companionDataMap))
+        {
+            auto actor = (RE::Actor*)RE::TESForm::LookupByID(companionRefId);
+            if (actor && actor->boolBits.all(RE::Actor::BOOL_BITS::kPlayerTeammate))
+            {
+                companion = actor;
+                break;
+            }
+        }
+
+        return companion;
+    }
+
     void HandleUpdate()
     {
-        auto handled = SetPresenceBasedOnMenuState();
+        logger::info("Handling update");
+        auto companion = GetActiveCompanion();
+
+        auto handled = SetPresenceBasedOnMenuState(companion);
         if (!handled)
         {
             // not in a menu, handle as load
-            SetPresenceBasedOnGameState();
+            SetPresenceBasedOnGameState(companion);
         }
     }
 } // namespace PresenceManager

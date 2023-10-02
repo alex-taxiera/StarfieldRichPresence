@@ -22,10 +22,17 @@ namespace Discord
 
     void SetPresence(std::string state, std::string details)
     {
+        SetPresence(state, details, "", "");
+    }
+
+    void SetPresence(std::string state, std::string details, std::string smallImageKey, std::string smallImageText)
+    {
         DiscordRichPresence presence = {
-            .state = state.c_str(),
-            .details = details.c_str(),
-            .largeImageKey = Resources::StarfieldLogo,
+            .state          = state.c_str(),
+            .details        = details.c_str(),
+            .largeImageKey  = Resources::StarfieldLogo,
+            .smallImageKey  = smallImageKey.c_str(),
+            .smallImageText = smallImageText.c_str(),
         };
 
         if (Settings::bShowTimeElapsed)
@@ -44,6 +51,14 @@ namespace Discord
         if (!details.empty())
         {
             logger::debug("Presence details: {}", details);
+        }
+        if (!smallImageKey.empty())
+        {
+            logger::debug("Presence small image key: {}", smallImageKey);
+        }
+        if (!smallImageText.empty())
+        {
+            logger::debug("Presence small image text: {}", smallImageText);
         }
 
         Discord_UpdatePresence(&presence);

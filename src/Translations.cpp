@@ -23,6 +23,8 @@ namespace Translations
             Text::InSpace             = ini.GetValue("Translation", "InSpace", Text::InSpace);
             Text::InSpaceship         = ini.GetValue("Translation", "InSpaceship", Text::InSpaceship);
             Text::PilotingSpaceship   = ini.GetValue("Translation", "PilotingSpaceship", Text::PilotingSpaceship);
+            Text::TravellingWith      = ini.GetValue("Translation", "TravellingWith", Text::TravellingWith);
+            Text::System              = ini.GetValue("Translation", "System", Text::System);
             Text::Level               = ini.GetValue("Translation", "Level", Text::Level);
             Text::In                  = ini.GetValue("Translation", "In", Text::In);
             Text::On                  = ini.GetValue("Translation", "On", Text::On);
