@@ -1,6 +1,7 @@
 #include "Discord.h"
-#include "Settings.h"
+
 #include "Constants.h"
+#include "Settings.h"
 #include "Translations.h"
 
 namespace Discord

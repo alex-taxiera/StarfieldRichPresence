@@ -1,7 +1,8 @@
 #include "Translations.h"
+
 #include "Settings.h"
 
- void Translations::LoadTranslations() noexcept
+void Translations::LoadTranslations() noexcept
 {
     logger::info("Loading translation");
 

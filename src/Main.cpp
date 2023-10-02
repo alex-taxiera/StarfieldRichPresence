@@ -1,5 +1,5 @@
-#include "Hooks.h"
 #include "Discord.h"
+#include "Hooks.h"
 #include "Settings.h"
 #include "Translations.h"
 

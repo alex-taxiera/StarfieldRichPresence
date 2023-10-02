@@ -1,6 +1,7 @@
 #include "Hooks.h"
-#include "PresenceManager.h"
+
 #include "Constants.h"
+#include "PresenceManager.h"
 
 namespace Hooks
 {
@@ -41,7 +42,7 @@ namespace Hooks
 
             static inline REL::Relocation<decltype(thunk)> func;
         };
-    }
+    } // namespace Presence
 
     void Install() noexcept
     {

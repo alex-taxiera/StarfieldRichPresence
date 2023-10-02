@@ -1,7 +1,8 @@
 #include "PresenceManager.h"
+
 #include "Constants.h"
-#include "Settings.h"
 #include "Discord.h"
+#include "Settings.h"
 #include "Translations.h"
 
 namespace PresenceManager
@@ -124,8 +125,8 @@ namespace PresenceManager
                     }
 
                     // check if parent location is a system and add "System" to the name
-                    //auto IsSystemKeyword = (RE::BGSKeyword*)RE::TESForm::LookupByID(0x0000149F);
-                    //if (IsSystemKeyword && parentLocation->HasKeyword(IsSystemKeyword))
+                    // auto IsSystemKeyword = (RE::BGSKeyword*)RE::TESForm::LookupByID(0x0000149F);
+                    // if (IsSystemKeyword && parentLocation->HasKeyword(IsSystemKeyword))
                     //{
                     //    parentLocationName = std::format("{} {}", parentLocationName, Translations::strings[Translations::Keys::System]);
                     //}
@@ -140,7 +141,6 @@ namespace PresenceManager
                     }
                 }
             }
-
 
             return parentLocationName;
         }
@@ -159,9 +159,7 @@ namespace PresenceManager
             {
                 if (Settings::bShowCharacterName)
                 {
-
                     details = std::vformat(Translations::strings[Translations::Keys::CharacterNameAndLevelTemplate], std::make_format_args(playerName, Translations::strings[Translations::Keys::Level], playerActorBaseData->actorData.level));
-
                 }
                 else
                 {
@@ -219,7 +217,7 @@ namespace PresenceManager
                 {
                     if (Settings::bShowShipName)
                     {
-                        //logger::debug("test: {}", Translations::strings[Translations::Keys::InSpaceship]);
+                        // logger::debug("test: {}", Translations::strings[Translations::Keys::InSpaceship]);
                         state = std::format("{} ({})", Translations::strings[Translations::Keys::InSpaceship], shipName);
                     }
                     else
@@ -338,11 +336,10 @@ namespace PresenceManager
                         if (!locationName.empty())
                         {
                             bool playerIsInside = playerActor->parentCell;
-                            state = std::format(
+                            state               = std::format(
                                 "{} | {}",
                                 state,
-                                locationName
-                            );
+                                locationName);
                         }
                     }
 
@@ -375,7 +372,7 @@ namespace PresenceManager
 
             return false;
         }
-    }
+    } // namespace
 
     void HandleUpdate()
     {
