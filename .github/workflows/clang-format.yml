@@ -9,6 +9,9 @@ on:
       - "**.cpp"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   clang-format:
     runs-on: ubuntu-latest
