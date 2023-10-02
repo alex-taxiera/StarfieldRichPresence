@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "starfield-rich-presence",
   "version-semver": "0.0.1",
-  "dependencies": [ "commonlibsf", "simpleini", "discord-rpc", "plf-nanotimer" ],
+  "dependencies": ["commonlibsf", "simpleini", "discord-rpc", "plf-nanotimer"],
   "license": "GPL-3.0-or-later",
   "vcpkg-configuration": {
     "default-registry": {
@@ -15,7 +15,7 @@
         "kind": "git",
         "repository": "https://github.com/Starfield-Reverse-Engineering/Starfield-RE-vcpkg",
         "baseline": "a55a074515fab83951156fbc9ce2fc24710912c6",
-        "packages": [ "commonlibsf" ]
+        "packages": ["commonlibsf"]
       }
     ]
   }
