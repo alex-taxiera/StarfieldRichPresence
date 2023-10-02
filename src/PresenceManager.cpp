@@ -28,12 +28,12 @@ namespace PresenceManager
             return playerActorBaseData;
         }
 
-        std::string BuildDetailsString(RE::Actor* playerActor, RE::TESActorBaseData* playerActorBaseData)
+        std::string BuildDetailsString(RE::TESActorBaseData* playerActorBaseData)
         {
             std::string details{};
 
             logger::debug("getting player name");
-            std::string playerName = playerActor->GetDisplayFullName();
+            std::string playerName = RE::PlayerCharacter::GetSingleton()->GetDisplayFullName();
 
             if (Settings::bShowCharacterName)
             {
@@ -52,10 +52,57 @@ namespace PresenceManager
             return details;
         }
 
-        std::string GetPlayerLocationName(RE::Actor* playerActor)
+        RE::BGSLocation* GetRealLocation()
+        {
+            RE::BGSLocation* location = RE::PlayerCharacter::GetSingleton()->GetCurrentLocation();
+
+            if (location)
+            {
+                // DEBUG TREE
+
+                logger::debug("location: {}, type: {}, id: {:x}", location->GetFullName(), location->GetFormType(), location->GetFormID());
+                auto parentLocation = location->parentLocation;
+                if (parentLocation)
+                {
+                    logger::debug("parentLocation: {}, type: {}, id: {:x}", parentLocation->GetFullName(), parentLocation->GetFormType(), parentLocation->GetFormID());
+                    auto grandParentLocation = parentLocation->parentLocation;
+                    if (grandParentLocation)
+                    {
+                        logger::debug("grandParentLocation: {}, type: {}, id: {:x}", grandParentLocation->GetFullName(), grandParentLocation->GetFormType(), grandParentLocation->GetFormID());
+                        auto greatGrandparentLocation = grandParentLocation->parentLocation;
+                        if (greatGrandparentLocation)
+                        {
+                            logger::debug("greatGrandparentLocation: {}, type: {}, id: {:x}", greatGrandparentLocation->GetFullName(), greatGrandparentLocation->GetFormType(), greatGrandparentLocation->GetFormID());
+                            auto greatGreatGrandparentLocation = greatGrandparentLocation->parentLocation;
+                            if (greatGreatGrandparentLocation)
+                            {
+                                logger::debug("greatGreatGrandparentLocation: {}, type: {}, id: {:x}", greatGreatGrandparentLocation->GetFullName(), greatGreatGrandparentLocation->GetFormType(), greatGreatGrandparentLocation->GetFormID());
+                                auto greatGreatGreatGrandparentLocation = greatGreatGrandparentLocation->parentLocation;
+                                if (greatGreatGreatGrandparentLocation)
+                                {
+                                    logger::debug("greatGreatGreatGrandparentLocation: {}, type: {}, id: {:x}", greatGreatGreatGrandparentLocation->GetFullName(), greatGreatGreatGrandparentLocation->GetFormType(), greatGreatGreatGrandparentLocation->GetFormID());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (location && strcmp(location->GetFullName(), "Landing Area") == 0 && location->parentLocation)
+            {
+                location = location->parentLocation;
+            }
+
+            return location;
+        }
+
+
+        std::string GetPlayerLocationName()
         {
             std::string locationName{};
-            auto location = playerActor->GetCurrentLocation();
+
+            auto location = GetRealLocation();
+
             if (location)
             {
                 locationName = location->GetFullName();
@@ -63,24 +110,57 @@ namespace PresenceManager
             return locationName;
         }
 
-        std::string GetPlayerParentWorldSpaceName(RE::Actor* playerActor)
+        std::string GetPlayerParentLocationName()
         {
-            std::string parentWorldSpaceName{};
-            auto actorParentWorldSpace = playerActor->GetParentWorldSpace();
-            if (actorParentWorldSpace)
+            std::string parentLocationName{};
+
+            auto location = GetRealLocation();
+
+            if (location)
             {
-                parentWorldSpaceName = actorParentWorldSpace->GetFullName();
+                auto parentLocation = location->parentLocation;
+
+                if (parentLocation)
+                {
+                    parentLocationName = parentLocation->GetFullName();
+
+                    if (parentLocationName == location->GetFullName() && parentLocation->parentLocation)
+                    {
+                        parentLocation     = parentLocation->parentLocation;
+                        parentLocationName = parentLocation->GetFullName();
+                    }
+
+                    // check if parent location is a system and add "System" to the name
+                    //auto IsSystemKeyword = (RE::BGSKeyword*)RE::TESForm::LookupByID(0x0000149F);
+                    //if (IsSystemKeyword && parentLocation->HasKeyword(IsSystemKeyword))
+                    //{
+                    //    parentLocationName = std::format("{} {}", parentLocationName, Translations::Text::System);
+                    //}
+                    auto grandParentLocation = parentLocation->parentLocation;
+                    if (grandParentLocation)
+                    {
+                        std::string grandParentLocationName = grandParentLocation->GetFullName();
+                        if (strcmp(grandParentLocation->GetFullName(), "Universe") == 0) // if the grand parent is the universe, then the parent is a system
+                        {
+                            parentLocationName = std::format("{} {}", parentLocationName, Translations::Text::System);
+                        }
+                    }
+                }
             }
-            return parentWorldSpaceName;
+
+
+            return parentLocationName;
         }
 
-        std::string BuildStateString(RE::Actor* playerActor)
+        std::string BuildStateString()
         {
             std::string state{};
 
-            auto spaceship          = playerActor->GetSpaceship();
-            bool isInCombat         = playerActor->IsInCombat();
-            auto playerLocationName = GetPlayerLocationName(playerActor);
+            auto        playerActor              = RE::PlayerCharacter::GetSingleton();
+            auto        spaceship                = playerActor->GetSpaceship();
+            bool        isInCombat               = playerActor->IsInCombat();
+            std::string playerLocationName       = GetPlayerLocationName();
+            std::string playerParentLocationName = GetPlayerParentLocationName();
 
             /*if (playerActor->IsInSpace(false))
             {
@@ -137,9 +217,9 @@ namespace PresenceManager
 
                 if (isInCombat)
                 {
-                    if (!playerParentWorldSpaceName.empty() && Settings::bShowPlanetWhileOutside)
+                    if (!playerParentLocationName.empty() && Settings::bShowPlanetWhileOutside)
                     {
-                        state = std::format("{} {} {} | {}", Translations::Text::Fighting, Translations::Text::At, playerLocationName, playerParentWorldSpaceName);
+                        state = std::format("{} {} {} | {}", Translations::Text::Fighting, Translations::Text::At, playerLocationName, playerParentLocationName);
                     }
                     else
                     {
@@ -148,11 +228,11 @@ namespace PresenceManager
                 }
                 else
                 {
-                    logger::debug("{} | {}", playerLocationName, playerParentWorldSpaceName);
+                    logger::debug("{} | {}", playerLocationName, playerParentLocationName);
 
-                    if (!playerParentWorldSpaceName.empty() && Settings::bShowPlanetWhileOutside)
+                    if (!playerParentLocationName.empty() && Settings::bShowPlanetWhileOutside)
                     {
-                        state = std::format("{} {} | {}", Translations::Text::Exploring, playerLocationName, playerParentWorldSpaceName);
+                        state = std::format("{} {} | {}", Translations::Text::Exploring, playerLocationName, playerParentLocationName);
                     }
                     else
                     {
@@ -166,7 +246,7 @@ namespace PresenceManager
 
         bool SetPresenceBasedOnGameState()
         {
-            auto playerActor = RE::Actor::PlayerCharacter();
+            auto playerActor = RE::PlayerCharacter::GetSingleton();
 
             if (!playerActor)
             {
@@ -180,7 +260,7 @@ namespace PresenceManager
                 return false;
             }
 
-            Discord::SetPresence(BuildStateString(playerActor), BuildDetailsString(playerActor, playerActorBaseData));
+            Discord::SetPresence(BuildStateString(), BuildDetailsString(playerActorBaseData));
             return true;
         }
 
@@ -202,11 +282,11 @@ namespace PresenceManager
                         return true;
                     }
 
-                    auto playerActor = RE::Actor::PlayerCharacter();
+                    auto playerActor = RE::PlayerCharacter::GetSingleton();
 
                     if (menuEntry.shouldShowLocation && playerActor)
                     {
-                        auto locationName = GetPlayerLocationName(playerActor);
+                        auto locationName = GetPlayerLocationName();
 
                         if (!locationName.empty())
                         {
@@ -230,7 +310,7 @@ namespace PresenceManager
                         }
                         else
                         {
-                            Discord::SetPresence(state, BuildDetailsString(playerActor, playerActorBaseData));
+                            Discord::SetPresence(state, BuildDetailsString(playerActorBaseData));
                         }
                     }
                     else

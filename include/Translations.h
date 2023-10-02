@@ -12,6 +12,7 @@ namespace Translations
         static const char* InSpace       = "In outer space";
         static const char* InSpaceship   = "In ship";
         static const char* PilotingSpaceship = "Piloting ship";
+        static const char* System        = "System";
         static const char* Level         = "Lv";
         static const char* In            = "in";
         static const char* On            = "on";
