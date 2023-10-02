@@ -1,68 +1,133 @@
 #pragma once
 
-namespace Translations
+class Translations : public Singleton<Translations>
 {
-    void LoadTranslations() noexcept;
+public:
+    static void LoadTranslations() noexcept;
 
-    namespace Text
+    enum Keys
     {
-        static const char* LaunchingGame = "Launching Game";
-        static const char* Exploring     = "Exploring";
-        static const char* Fighting      = "Fighting";
-        static const char* InSpace       = "In outer space";
-        static const char* InSpaceship   = "In ship";
-        static const char* PilotingSpaceship = "Piloting ship";
-        static const char* TravellingWith    = "Travelling with";
-        static const char* System        = "System";
-        static const char* Level         = "Lv";
-        static const char* In            = "in";
-        static const char* On            = "on";
-        static const char* At            = "at";
-        // Menu specific
-        static const char* InMainMenu    = "In Main Menu";
-        static const char* PauseMenu    = "Paused";
-        static const char* SleepWaitMenu    = "Sleeping";
-        static const char* PickpocketMenu    = "Pickpocketing";
-        static const char* LockpickingMenu    = "Lockpicking";
-        static const char* SkillsMenu    = "Checking perks";
-        static const char* GalaxyStarMapMenu    = "Gazing at starmap";
-        static const char* PhotoModeMenu    = "Taking a photo";
-        static const char* PhotoGalleryMenu    = "Looking at photos";
-        static const char* BSMissionMenu    = "Looking at the quest log";
-        static const char* PowersMenu    = "Looking at powers";
-        static const char* InventoryMenu    = "Checking inventory";
-        static const char* ChargenMenu    = "Creating a character";
-        static const char* SpaceshipEditorMenu    = "Looking at ships";
-        static const char* DataMenu    = "In menus";
+        LaunchingGame,
+        Exploring,
+        Fighting,
+        InSpace,
+        InSpaceship,
+        PilotingSpaceship,
+        TravellingWith,
+        System,
+        Level,
+        In,
+        On,
+        At,
+        Ship,
+        InMainMenu,
+        PauseMenu,
+        SleepWaitMenu,
+        PickpocketMenu,
+        LockpickingMenu,
+        SkillsMenu,
+        GalaxyStarMapMenu,
+        PhotoModeMenu,
+        PhotoGalleryMenu,
+        BSMissionMenu,
+        PowersMenu,
+        InventoryMenu,
+        ChargenMenu,
+        SpaceshipEditorMenu,
+        DataMenu,
+        CharacterNameAndLevelTemplate,
+        LevelTemplate,
     };
 
-    namespace UIMenu
-    {
-        struct MenuEntry
-        {
-            const char* menuName           = NULL;
-            const char* menuText           = "";
-            bool        shouldShowLocation = true;
-            bool        shouldShowDetails  = true;
-        };
+    inline static const std::map<Keys, const char*> translationKeys = {
+         {LaunchingGame,                 "sLaunchingGame"                 },
+        { Exploring,                     "sExploring"                     },
+        { Fighting,                      "sFighting"                      },
+        { InSpace,                       "sInSpace"                       },
+        { InSpaceship,                   "sInSpaceship"                   },
+        { PilotingSpaceship,             "sPilotingSpaceship"             },
+        { TravellingWith,                "sTravellingWith"                },
+        { System,                        "sSystem"                        },
+        { Level,                         "sLevel"                         },
+        { In,                            "sIn"                            },
+        { On,                            "sOn"                            },
+        { At,                            "sAt"                            },
+        { Ship,                          "sShip"                          },
+        { InMainMenu,                    "sInMainMenu"                    },
+        { PauseMenu,                     "sPauseMenu"                     },
+        { SleepWaitMenu,                 "sSleepWaitMenu"                 },
+        { PickpocketMenu,                "sPickpocketMenu"                },
+        { LockpickingMenu,               "sLockpickingMenu"               },
+        { SkillsMenu,                    "sSkillsMenu"                    },
+        { GalaxyStarMapMenu,             "sGalaxyStarMapMenu"             },
+        { PhotoModeMenu,                 "sPhotoModeMenu"                 },
+        { PhotoGalleryMenu,              "sPhotoGalleryMenu"              },
+        { BSMissionMenu,                 "sBSMissionMenu"                 },
+        { PowersMenu,                    "sPowersMenu"                    },
+        { InventoryMenu,                 "sInventoryMenu"                 },
+        { ChargenMenu,                   "sChargenMenu"                   },
+        { SpaceshipEditorMenu,           "sSpaceshipEditorMenu"           },
+        { DataMenu,                      "sDataMenu"                      },
+        { CharacterNameAndLevelTemplate, "sCharacterNameAndLevelTemplate" },
+        { LevelTemplate,                 "sLevelTemplate"                 },
+    };
+    inline static std::map<Keys, std::string> strings = {
+        {LaunchingGame,                  "Launching game"          },
+        { Exploring,                     "Exploring"               },
+        { Fighting,                      "Fighting"                },
+        { InSpace,                       "In outer space"          },
+        { InSpaceship,                   "In ship"                 },
+        { PilotingSpaceship,             "Piloting ship"           },
+        { TravellingWith,                "Travelling with"         },
+        { System,                        "System"                  },
+        { Level,                         "Lv"                      },
+        { In,                            "in"                      },
+        { On,                            "on"                      },
+        { At,                            "at"                      },
+        { Ship,                          "ship"                    },
+        { InMainMenu,                    "In main menu"            },
+        { PauseMenu,                     "Paused"                  },
+        { SleepWaitMenu,                 "Sleeping"                },
+        { PickpocketMenu,                "Pickpocketing"           },
+        { LockpickingMenu,               "Lockpicking"             },
+        { SkillsMenu,                    "Checking perks"          },
+        { GalaxyStarMapMenu,             "Gazing at starmap"       },
+        { PhotoModeMenu,                 "Taking a photo"          },
+        { PhotoGalleryMenu,              "Looking at photos"       },
+        { BSMissionMenu,                 "Looking at the quest log"},
+        { PowersMenu,                    "Looking at powers"       },
+        { InventoryMenu,                 "Checking inventory"      },
+        { ChargenMenu,                   "Creating a character"    },
+        { SpaceshipEditorMenu,           "Looking at ships"        },
+        { DataMenu,                      "In menus"                },
+        { CharacterNameAndLevelTemplate, "{0} | {1} {2}"           },
+        { LevelTemplate,                 "{} {}"                   },
+    };
 
-        static MenuEntry menuEntries[16] = {
-            { "LoadingMenu" }, // no menu text because it's only shown for a few seconds
-            { "MainMenu", Text::InMainMenu, false, false },
-            { "PauseMenu", Text::PauseMenu, false }, // System Menu
-            { "SleepWaitMenu", Text::SleepWaitMenu },
-            { "PickpocketMenu", Text::PickpocketMenu },
-            { "LockpickingMenu", Text::LockpickingMenu },
-            { "SkillsMenu", Text::SkillsMenu },
-            { "GalaxyStarMapMenu", Text::GalaxyStarMapMenu, false },
-            { "PhotoModeMenu", Text::PhotoModeMenu },
-            { "PhotoGalleryMenu", Text::PhotoGalleryMenu },
-            { "BSMissionMenu", Text::BSMissionMenu },
-            { "PowersMenu", Text::PowersMenu },
-            { "InventoryMenu", Text::InventoryMenu },
-            { "ChargenMenu", Text::ChargenMenu, false },
-            { "SpaceshipEditorMenu", Text::SpaceshipEditorMenu },
-            { "DataMenu", Text::DataMenu }, // last because there are sub menus
-        };
-    }
-} // namespace Translations
+    struct MenuEntry
+    {
+        const char* menuName           = NULL;
+        std::string menuText           = "";
+        bool        shouldShowLocation = true;
+        bool        shouldShowDetails  = true;
+    };
+
+    inline static const MenuEntry menuEntries[16] = {
+        { "LoadingMenu" }, // no menu text because it's only shown for a few seconds
+        { "MainMenu", strings[InMainMenu], false, false },
+        { "PauseMenu", strings[PauseMenu], false }, // System Menu
+        { "SleepWaitMenu", strings[SleepWaitMenu] },
+        { "PickpocketMenu", strings[PickpocketMenu] },
+        { "LockpickingMenu", strings[LockpickingMenu] },
+        { "SkillsMenu", strings[SkillsMenu] },
+        { "GalaxyStarMapMenu", strings[GalaxyStarMapMenu], false },
+        { "PhotoModeMenu", strings[PhotoModeMenu] },
+        { "PhotoGalleryMenu", strings[PhotoGalleryMenu] },
+        { "BSMissionMenu", strings[BSMissionMenu] },
+        { "PowersMenu", strings[PowersMenu] },
+        { "InventoryMenu", strings[InventoryMenu] },
+        { "ChargenMenu", strings[ChargenMenu], false },
+        { "SpaceshipEditorMenu", strings[SpaceshipEditorMenu] },
+        { "DataMenu", strings[DataMenu] }, // last because there are sub menus
+    };
+};

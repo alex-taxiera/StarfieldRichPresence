@@ -27,28 +27,23 @@ namespace PresenceManager
             return playerActorBaseData;
         }
 
-        std::string BuildDetailsString(RE::TESActorBaseData* playerActorBaseData)
+        RE::Actor* GetActiveCompanion()
         {
-            std::string details{};
+            RE::Actor* companion{};
 
-            logger::debug("getting player name");
-            std::string playerName = RE::PlayerCharacter::GetSingleton()->GetDisplayFullName();
+            // auto eliteCrewList = (RE::BGSListForm*)RE::TESForm::LookupByID(0x00133A67);
 
-            if (Settings::bShowCharacterName)
+            for (auto const& companionRefId : std::views::keys(Resources::companionDataMap))
             {
-                logger::debug("got player name: {}", playerName);
-                details = playerName;
-            }
-            if (Settings::bShowCharacterLevel)
-            {
-                if (Settings::bShowCharacterName)
+                auto actor = (RE::Actor*)RE::TESForm::LookupByID(companionRefId);
+                if (actor && actor->boolBits.all(RE::Actor::BOOL_BITS::kPlayerTeammate))
                 {
-                    details += " | ";
+                    companion = actor;
+                    break;
                 }
-                details += std::format("{} {}", Translations::Text::Level, playerActorBaseData->actorData.level);
             }
 
-            return details;
+            return companion;
         }
 
         RE::BGSLocation* GetRealLocation()
@@ -95,7 +90,6 @@ namespace PresenceManager
             return location;
         }
 
-
         std::string GetPlayerLocationName()
         {
             std::string locationName{};
@@ -133,7 +127,7 @@ namespace PresenceManager
                     //auto IsSystemKeyword = (RE::BGSKeyword*)RE::TESForm::LookupByID(0x0000149F);
                     //if (IsSystemKeyword && parentLocation->HasKeyword(IsSystemKeyword))
                     //{
-                    //    parentLocationName = std::format("{} {}", parentLocationName, Translations::Text::System);
+                    //    parentLocationName = std::format("{} {}", parentLocationName, Translations::strings[Translations::Keys::System]);
                     //}
                     auto grandParentLocation = parentLocation->parentLocation;
                     if (grandParentLocation)
@@ -141,7 +135,7 @@ namespace PresenceManager
                         std::string grandParentLocationName = grandParentLocation->GetFullName();
                         if (strcmp(grandParentLocation->GetFullName(), "Universe") == 0) // if the grand parent is the universe, then the parent is a system
                         {
-                            parentLocationName = std::format("{} {}", parentLocationName, Translations::Text::System);
+                            parentLocationName = std::format("{} {}", parentLocationName, Translations::strings[Translations::Keys::System]);
                         }
                     }
                 }
@@ -149,6 +143,33 @@ namespace PresenceManager
 
 
             return parentLocationName;
+        }
+
+        std::string BuildDetailsString(RE::TESActorBaseData* playerActorBaseData)
+        {
+            std::string details{};
+
+            std::string playerName = RE::PlayerCharacter::GetSingleton()->GetDisplayFullName();
+
+            if (Settings::bShowCharacterName)
+            {
+                details = playerName;
+            }
+            if (Settings::bShowCharacterLevel)
+            {
+                if (Settings::bShowCharacterName)
+                {
+
+                    details = std::vformat(Translations::strings[Translations::Keys::CharacterNameAndLevelTemplate], std::make_format_args(playerName, Translations::strings[Translations::Keys::Level], playerActorBaseData->actorData.level));
+
+                }
+                else
+                {
+                    details = std::vformat(Translations::strings[Translations::Keys::LevelTemplate], std::make_format_args(Translations::strings[Translations::Keys::Level], playerActorBaseData->actorData.level));
+                }
+            }
+
+            return details;
         }
 
         std::string BuildStateString()
@@ -169,7 +190,7 @@ namespace PresenceManager
                 logger::debug("playerLocationName: {}", playerLocationName);
                 logger::debug("playerParentWorldSpaceName: {}", playerParentWorldSpaceName);
 
-                state = Translations::Text::InSpace;
+                state = Translations::strings[Translations::Keys::InSpace];
             }*/
 
             if (spaceship)
@@ -181,46 +202,47 @@ namespace PresenceManager
 
                 if (isInCombat)
                 {
-                    state = std::format("{} {} {}", Translations::Text::Fighting, Translations::Text::On, !isInPlayerShip || Settings::bShowShipName ? shipName : "ship");
+                    state = std::format("{} {} {}", Translations::strings[Translations::Keys::Fighting], Translations::strings[Translations::Keys::On], !isInPlayerShip || Settings::bShowShipName ? shipName : Translations::strings[Translations::Keys::Ship]);
                 }
                 else if (isPiloting)
                 {
-                    if (isInPlayerShip && !Settings::bShowShipName)
+                    if (isInPlayerShip && Settings::bShowShipName)
                     {
-                        state = Translations::Text::PilotingSpaceship;
+                        state = std::format("{} ({})", Translations::strings[Translations::Keys::PilotingSpaceship], shipName);
                     }
                     else
                     {
-                        state = std::format("{} ({})", Translations::Text::PilotingSpaceship, shipName);
+                        state = Translations::strings[Translations::Keys::PilotingSpaceship];
                     }
                 }
                 else if (isInPlayerShip)
                 {
                     if (Settings::bShowShipName)
                     {
-                        state = std::format("{} ({})", Translations::Text::InSpaceship, shipName);
+                        //logger::debug("test: {}", Translations::strings[Translations::Keys::InSpaceship]);
+                        state = std::format("{} ({})", Translations::strings[Translations::Keys::InSpaceship], shipName);
                     }
                     else
                     {
-                        state = Translations::Text::InSpaceship;
+                        state = Translations::strings[Translations::Keys::InSpaceship];
                     }
                 }
                 else
                 {
-                    state = std::format("{} {}", Translations::Text::Exploring, shipName);
+                    state = std::format("{} {}", Translations::strings[Translations::Keys::Exploring], shipName);
                 }
             }
             else
             {
                 if (isInCombat)
                 {
-                    if (!playerParentLocationName.empty() && Settings::bShowPlanetWhileOutside)
+                    if (!playerParentLocationName.empty())
                     {
-                        state = std::format("{} {} {} | {}", Translations::Text::Fighting, Translations::Text::At, playerLocationName, playerParentLocationName);
+                        state = std::format("{} {} {} | {}", Translations::strings[Translations::Keys::Fighting], Translations::strings[Translations::Keys::At], playerLocationName, playerParentLocationName);
                     }
                     else
                     {
-                        state = std::format("{} {} {}", Translations::Text::Fighting, Translations::Text::On, playerLocationName);
+                        state = std::format("{} {} {}", Translations::strings[Translations::Keys::Fighting], Translations::strings[Translations::Keys::On], playerLocationName);
                     }
                 }
                 else
@@ -229,11 +251,11 @@ namespace PresenceManager
 
                     if (!playerParentLocationName.empty() && Settings::bShowPlanetWhileOutside)
                     {
-                        state = std::format("{} {} | {}", Translations::Text::Exploring, playerLocationName, playerParentLocationName);
+                        state = std::format("{} {} | {}", Translations::strings[Translations::Keys::Exploring], playerLocationName, playerParentLocationName);
                     }
                     else
                     {
-                        state = std::format("{} {}", Translations::Text::Exploring, playerLocationName);
+                        state = std::format("{} {}", Translations::strings[Translations::Keys::Exploring], playerLocationName);
                     }
                 }
             }
@@ -253,7 +275,7 @@ namespace PresenceManager
                 auto& companionData = Resources::companionDataMap.at(companionId);
                 if (!companionData.smallImageKey.empty())
                 {
-                    Discord::SetPresence(state, details, companionData.smallImageKey, std::format("{} {}", Translations::Text::TravellingWith, companionName));
+                    Discord::SetPresence(state, details, companionData.smallImageKey, std::format("{} {}", Translations::strings[Translations::Keys::TravellingWith], companionName));
                     return;
                 }
             }
@@ -293,7 +315,7 @@ namespace PresenceManager
         {
             auto ui = RE::UI::GetSingleton();
 
-            for (const auto& menuEntry : Translations::UIMenu::menuEntries)
+            for (const auto& menuEntry : Translations::menuEntries)
             {
                 if (ui->IsMenuOpen(menuEntry.menuName))
                 {
@@ -317,9 +339,8 @@ namespace PresenceManager
                         {
                             bool playerIsInside = playerActor->parentCell;
                             state = std::format(
-                                "{} {} {}",
+                                "{} | {}",
                                 state,
-                                playerIsInside ? Translations::Text::In : Translations::Text::On,
                                 locationName
                             );
                         }
@@ -354,25 +375,6 @@ namespace PresenceManager
 
             return false;
         }
-    }
-
-    RE::Actor* GetActiveCompanion()
-    {
-        RE::Actor* companion{};
-
-        //auto eliteCrewList = (RE::BGSListForm*)RE::TESForm::LookupByID(0x00133A67);
-
-        for (auto const& companionRefId : std::views::keys(Resources::companionDataMap))
-        {
-            auto actor = (RE::Actor*)RE::TESForm::LookupByID(companionRefId);
-            if (actor && actor->boolBits.all(RE::Actor::BOOL_BITS::kPlayerTeammate))
-            {
-                companion = actor;
-                break;
-            }
-        }
-
-        return companion;
     }
 
     void HandleUpdate()

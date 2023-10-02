@@ -2,7 +2,8 @@ name: Prettier
 
 on:
   push:
-    branches: main
+    branches:
+      - trunk
     paths:
       - "**.json"
       - "**.yml"

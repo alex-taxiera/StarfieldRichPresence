@@ -71,7 +71,7 @@ namespace Discord
         Discord_Initialize(Constants::discordAppId.c_str(), &handlers, 1, NULL);
         logger::info("Discord Rich Presence initialized");
 
-        SetDetails(Translations::Text::LaunchingGame);
+        SetDetails(Translations::strings[Translations::Keys::LaunchingGame]);
 
         return true;
     }
