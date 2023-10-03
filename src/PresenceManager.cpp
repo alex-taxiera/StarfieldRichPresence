@@ -206,7 +206,7 @@ namespace PresenceManager
                 {
                     if (isInPlayerShip && Settings::bShowShipName)
                     {
-                        state = std::format("{} ({})", Translations::strings[Translations::Keys::PilotingSpaceship], shipName);
+                        state = std::vformat(Translations::strings[Translations::Keys::PilotingShipNameTemplate], std::make_format_args(Translations::strings[Translations::Keys::PilotingSpaceship], shipName));
                     }
                     else
                     {
@@ -217,8 +217,7 @@ namespace PresenceManager
                 {
                     if (Settings::bShowShipName)
                     {
-                        // logger::debug("test: {}", Translations::strings[Translations::Keys::InSpaceship]);
-                        state = std::format("{} ({})", Translations::strings[Translations::Keys::InSpaceship], shipName);
+                        state = std::vformat(Translations::strings[Translations::Keys::InSpaceshipNameTemplate], std::make_format_args(Translations::strings[Translations::Keys::InSpaceship], shipName));
                     }
                     else
                     {
@@ -227,7 +226,7 @@ namespace PresenceManager
                 }
                 else
                 {
-                    state = std::format("{} {}", Translations::strings[Translations::Keys::Exploring], shipName);
+                    state = std::vformat(Translations::strings[Translations::Keys::ExploringSpaceshipNameTemplate], std::make_format_args(Translations::strings[Translations::Keys::Exploring], shipName));
                 }
             }
             else
@@ -253,7 +252,7 @@ namespace PresenceManager
                     }
                     else
                     {
-                        state = std::format("{} {}", Translations::strings[Translations::Keys::Exploring], playerLocationName);
+                        state = std::vformat(Translations::strings[Translations::Keys::ExploringLocationTemplate], std::make_format_args(Translations::strings[Translations::Keys::Exploring], playerLocationName));
                     }
                 }
             }
@@ -273,7 +272,7 @@ namespace PresenceManager
                 auto& companionData = Resources::companionDataMap.at(companionId);
                 if (!companionData.smallImageKey.empty())
                 {
-                    Discord::SetPresence(state, details, companionData.smallImageKey, std::format("{} {}", Translations::strings[Translations::Keys::TravellingWith], companionName));
+                    Discord::SetPresence(state, details, companionData.smallImageKey, std::vformat(Translations::strings[Translations::Keys::ActiveFollowerTemplate], std::make_format_args(Translations::strings[Translations::Keys::TravellingWith], companionName)));
                     return;
                 }
             }

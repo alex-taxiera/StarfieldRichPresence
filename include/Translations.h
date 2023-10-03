@@ -38,6 +38,11 @@ public:
         CharacterNameAndLevelTemplate,
         LevelTemplate,
         SystemNameTemplate,
+        PilotingShipNameTemplate,
+        InSpaceshipNameTemplate,
+        ExploringSpaceshipNameTemplate,
+        ExploringLocationTemplate,
+        ActiveFollowerTemplate,
     };
 
     inline static const std::map<Keys, const char*> translationKeys = {
@@ -72,6 +77,11 @@ public:
         { CharacterNameAndLevelTemplate, "sCharacterNameAndLevelTemplate"},
         { LevelTemplate,                 "sLevelTemplate"                },
         { SystemNameTemplate,            "sSystemNameTemplate"           },
+        { PilotingShipNameTemplate,      "sPilotingShipNameTemplate"     },
+        { InSpaceshipNameTemplate,       "sInSpaceshipNameTemplate"      },
+        { ExploringSpaceshipNameTemplate,"sExploringSpaceshipNameTemplate"},
+        { ExploringLocationTemplate,     "sExploringLocationTemplate"    },
+        { ActiveFollowerTemplate,        "sActiveFollowerTemplate"       },
     };
     inline static std::map<Keys, std::string> strings = {
         {LaunchingGame,                  "Launching game"          },
@@ -102,9 +112,14 @@ public:
         { ChargenMenu,                   "Creating a character"    },
         { SpaceshipEditorMenu,           "Looking at ships"        },
         { DataMenu,                      "In menus"                },
-        { CharacterNameAndLevelTemplate, "{0} | {1} {2}"           },
-        { LevelTemplate,                 "{0} {1}"                 },
-        { SystemNameTemplate,            "{0} {1}"                 },
+        { CharacterNameAndLevelTemplate, "{0} | {1} {2}"           }, // playerName | sLevel playerLevel
+        { LevelTemplate,                 "{0} {1}"                 }, // sLevel playerLevel
+        { SystemNameTemplate,            "{0} {1}"                 }, // systemName sSystem
+        { PilotingShipNameTemplate,      "{0} ({1})"               }, // sPilotingSpaceship shipName
+        { InSpaceshipNameTemplate,       "{0} ({1})"               }, // sInSpaceship shipName
+        { ExploringSpaceshipNameTemplate,"{0} {1}"                 }, // sExploring shipName
+        { ExploringLocationTemplate,     "{0} {1}"                 }, // sExploring locationName
+        { ActiveFollowerTemplate,        "{0} {1}"                 }, // sTravellingWith followerName
     };
 
     struct MenuEntry
