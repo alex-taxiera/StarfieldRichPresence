@@ -3,8 +3,6 @@
 class Translations : public Singleton<Translations>
 {
 public:
-	static void LoadTranslations() noexcept;
-
 	enum Keys
 	{
 		LaunchingGame,
@@ -139,4 +137,8 @@ public:
 		{ "SpaceshipEditorMenu", strings[SpaceshipEditorMenu] },
 		{ "DataMenu", strings[DataMenu] },  // last because there are sub menus
 	};
+
+	static void LoadTranslations() noexcept;
+    template <typename... Args>
+	static std::string fmt(Keys key, Args&&... args);
 };

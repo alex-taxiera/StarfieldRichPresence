@@ -76,7 +76,7 @@ namespace PresenceManager
 						if (greatGrandparentLocation) {
 							logger::debug(
 								"greatGrandparentLocation: {}, type: {}, id: "
-							    "{:x}",
+								"{:x}",
 								greatGrandparentLocation->GetFullName(),
 								greatGrandparentLocation->GetFormType(),
 								greatGrandparentLocation->GetFormID());
@@ -85,7 +85,7 @@ namespace PresenceManager
 							if (greatGreatGrandparentLocation) {
 								logger::debug(
 									"greatGreatGrandparentLocation: {}, type: "
-								    "{}, id: {:x}",
+									"{}, id: {:x}",
 									greatGreatGrandparentLocation
 										->GetFullName(),
 									greatGreatGrandparentLocation
@@ -97,7 +97,7 @@ namespace PresenceManager
 								if (greatGreatGreatGrandparentLocation) {
 									logger::debug(
 										"greatGreatGreatGrandparentLocation: "
-									    "{}, type: {}, id: {:x}",
+										"{}, type: {}, id: {:x}",
 										greatGreatGreatGrandparentLocation
 											->GetFullName(),
 										greatGreatGreatGrandparentLocation
@@ -164,12 +164,11 @@ namespace PresenceManager
 								"Universe") ==
 							0)  // if the grand parent is the universe, then the parent is a system
 						{
-							parentLocationName = std::vformat(
+							parentLocationName = Translations::fmt(
+								Translations::Keys::SystemNameTemplate,
+								parentLocationName,
 								Translations::strings
-									[Translations::Keys::SystemNameTemplate],
-								std::make_format_args(parentLocationName,
-									Translations::strings
-										[Translations::Keys::System]));
+									[Translations::Keys::System]);
 						}
 					}
 				}
@@ -191,19 +190,16 @@ namespace PresenceManager
 			}
 			if (Settings::bShowCharacterLevel) {
 				if (Settings::bShowCharacterName) {
-					details = std::vformat(
-						Translations::strings
-							[Translations::Keys::CharacterNameAndLevelTemplate],
-						std::make_format_args(playerName,
-							Translations::strings[Translations::Keys::Level],
-							playerActorBaseData->actorData.level));
+					details = Translations::fmt(
+						Translations::Keys::CharacterNameAndLevelTemplate,
+						playerName,
+						Translations::strings[Translations::Keys::Level],
+						playerActorBaseData->actorData.level);
 				} else {
-					details = std::vformat(
-						Translations::strings
-							[Translations::Keys::LevelTemplate],
-						std::make_format_args(
+					details =
+						Translations::fmt(Translations::Keys::LevelTemplate,
 							Translations::strings[Translations::Keys::Level],
-							playerActorBaseData->actorData.level));
+							playerActorBaseData->actorData.level);
 				}
 			}
 
@@ -247,38 +243,31 @@ namespace PresenceManager
 							Translations::strings[Translations::Keys::Ship]);
 				} else if (isPiloting) {
 					if (isInPlayerShip && Settings::bShowShipName) {
-						state = std::vformat(
+						state = Translations::fmt(
+							Translations::Keys::PilotingShipNameTemplate,
 							Translations::strings
-								[Translations::Keys::PilotingShipNameTemplate],
-							std::make_format_args(
-								Translations::strings
-									[Translations::Keys::PilotingSpaceship],
-								shipName));
+								[Translations::Keys::PilotingSpaceship],
+							shipName);
 					} else {
 						state = Translations::strings
 							[Translations::Keys::PilotingSpaceship];
 					}
 				} else if (isInPlayerShip) {
 					if (Settings::bShowShipName) {
-						state = std::vformat(
+						state = Translations::fmt(
+							Translations::Keys::InSpaceshipNameTemplate,
 							Translations::strings
-								[Translations::Keys::InSpaceshipNameTemplate],
-							std::make_format_args(
-								Translations::strings
-									[Translations::Keys::InSpaceship],
-								shipName));
+								[Translations::Keys::InSpaceship],
+							shipName);
 					} else {
 						state = Translations::strings
 							[Translations::Keys::InSpaceship];
 					}
 				} else {
-					state =
-						std::vformat(Translations::strings[Translations::Keys::
-											 ExploringSpaceshipNameTemplate],
-							std::make_format_args(
-								Translations::strings
-									[Translations::Keys::Exploring],
-								shipName));
+					state = Translations::fmt(
+						Translations::Keys::ExploringSpaceshipNameTemplate,
+						Translations::strings[Translations::Keys::Exploring],
+						shipName);
 				}
 			} else {
 				if (isInCombat) {
@@ -304,13 +293,11 @@ namespace PresenceManager
 								[Translations::Keys::Exploring],
 							playerLocationName, playerParentLocationName);
 					} else {
-						state = std::vformat(
+						state = Translations::fmt(
+							Translations::Keys::ExploringLocationTemplate,
 							Translations::strings
-								[Translations::Keys::ExploringLocationTemplate],
-							std::make_format_args(
-								Translations::strings
-									[Translations::Keys::Exploring],
-								playerLocationName));
+								[Translations::Keys::Exploring],
+							playerLocationName);
 					}
 				}
 			}
@@ -332,13 +319,11 @@ namespace PresenceManager
 				if (!companionData.smallImageKey.empty()) {
 					Discord::SetPresence(state, details,
 						companionData.smallImageKey,
-						std::vformat(
+						Translations::fmt(
+							Translations::Keys::ActiveFollowerTemplate,
 							Translations::strings
-								[Translations::Keys::ActiveFollowerTemplate],
-							std::make_format_args(
-								Translations::strings
-									[Translations::Keys::TravellingWith],
-								companionName)));
+								[Translations::Keys::TravellingWith],
+							companionName));
 					return;
 				}
 			}
