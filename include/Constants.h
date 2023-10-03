@@ -10,7 +10,7 @@ namespace Constants
 {
 	const std::string discordAppId = "1158402634152161450";
 	const float       updateDebounceTime = 3000;
-}  // namespace Constants
+}
 
 namespace Resources
 {
@@ -21,6 +21,6 @@ namespace Resources
 		{ 0x00005788, { .smallImageKey = "barrett_small" } },
 		{ 0x0029D488, { .smallImageKey = "sam_coe_small" } },
 	};
-};  // namespace Resources
+};
 
 #endif

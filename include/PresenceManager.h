@@ -3,4 +3,4 @@
 namespace PresenceManager
 {
 	void HandleUpdate();
-}  // namespace PresenceManager
+}

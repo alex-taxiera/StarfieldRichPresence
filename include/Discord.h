@@ -9,4 +9,4 @@ namespace Discord
 	void SetDetails(std::string details);
 	void SetPresence(std::string state, std::string details);
 	void SetPresence(std::string state, std::string details, std::string smallImageKey, std::string smallImageText);
-}  // namespace Discord
+}
