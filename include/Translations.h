@@ -139,6 +139,6 @@ public:
 	};
 
 	static void LoadTranslations() noexcept;
-    template <typename... Args>
+	template <typename... Args>
 	static std::string fmt(Keys key, Args&&... args);
 };
