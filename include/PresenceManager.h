@@ -2,5 +2,5 @@
 
 namespace PresenceManager
 {
-    void HandleUpdate();
-} // namespace PresenceManager
+	void HandleUpdate();
+}  // namespace PresenceManager
