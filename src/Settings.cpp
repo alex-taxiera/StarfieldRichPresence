@@ -8,8 +8,7 @@ void Settings::LoadSettings() noexcept
 
     ini.SetUnicode();
     auto rc = ini.LoadFile(R"(.\Data\SFSE\Plugins\StarfieldRichPresence.ini)");
-    if (rc < 0)
-    {
+    if (rc < 0) {
         logger::error("ERROR: Failed to load ini");
         return;
     }
@@ -24,8 +23,7 @@ void Settings::LoadSettings() noexcept
 
     bEnableDebug = ini.GetBoolValue("Log", "bEnableDebug", false);
 
-    if (bEnableDebug)
-    {
+    if (bEnableDebug) {
         spdlog::get("Global")->set_level(spdlog::level::level_enum::debug);
         logger::debug("Debug logging enabled");
     }

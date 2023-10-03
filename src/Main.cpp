@@ -6,13 +6,11 @@
 // SFSE message listener, use this to do stuff at specific moments during runtime
 void Listener(SFSE::MessagingInterface::Message* message) noexcept
 {
-    if (message->type <=> SFSE::MessagingInterface::kPostPostLoad == 0)
-    {
+    if (message->type <=> SFSE::MessagingInterface::kPostPostLoad == 0) {
         Settings::LoadSettings();
         Translations::LoadTranslations();
         auto ready = Discord::InitializePresence();
-        if (!ready)
-        {
+        if (!ready) {
             logger::error("Failed to initialize Discord Rich Presence");
             return;
         }

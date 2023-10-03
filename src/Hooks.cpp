@@ -16,8 +16,7 @@ namespace Hooks
 
         bool ShouldTriggerChange()
         {
-            if (timer.get_elapsed_ms() < Constants::updateDebounceTime)
-            {
+            if (timer.get_elapsed_ms() < Constants::updateDebounceTime) {
                 return false;
             }
 
@@ -31,8 +30,7 @@ namespace Hooks
             {
                 auto shouldCheck = ShouldTriggerChange();
 
-                if (shouldCheck)
-                {
+                if (shouldCheck) {
                     logger::debug("PresenceHook Thunk triggering");
                     PresenceManager::HandleUpdate();
                 }
@@ -40,7 +38,7 @@ namespace Hooks
                 func(unk);
             }
 
-            static inline REL::Relocation<decltype(thunk)> func;
+            inline static REL::Relocation<decltype(thunk)> func;
         };
     } // namespace Presence
 
@@ -50,8 +48,7 @@ namespace Hooks
         Presence::timer.start();
 
         // setup hooks
-        for (const auto& address : Presence::addresses)
-        {
+        for (const auto& address : Presence::addresses) {
             logger::debug("Installing Presence hook at {:x}", address);
             SFSE::stl::write_thunk_call<Presence::Hook>(address);
         }

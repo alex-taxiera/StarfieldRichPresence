@@ -36,29 +36,23 @@ namespace Discord
             .smallImageText = smallImageText.c_str(),
         };
 
-        if (Settings::bShowTimeElapsed)
-        {
-            if (!startTime)
-            {
+        if (Settings::bShowTimeElapsed) {
+            if (!startTime) {
                 startTime = time(0);
             }
             presence.startTimestamp = startTime;
         }
 
-        if (!state.empty())
-        {
+        if (!state.empty()) {
             logger::debug("Presence state: {}", state);
         }
-        if (!details.empty())
-        {
+        if (!details.empty()) {
             logger::debug("Presence details: {}", details);
         }
-        if (!smallImageKey.empty())
-        {
+        if (!smallImageKey.empty()) {
             logger::debug("Presence small image key: {}", smallImageKey);
         }
-        if (!smallImageText.empty())
-        {
+        if (!smallImageText.empty()) {
             logger::debug("Presence small image text: {}", smallImageText);
         }
 
