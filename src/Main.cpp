@@ -23,9 +23,11 @@ SFSEPluginLoad(const SFSE::LoadInterface* sfse)
 {
 	Init(sfse);
 
-	logger::info("{} {} is loading...", Plugin::Name, Plugin::Version.string("."sv));
+	logger::info("{} {} is loading...", Plugin::Name,
+		Plugin::Version.string("."sv));
 
-	if (const auto messaging{ SFSE::GetMessagingInterface() }; !messaging->RegisterListener(Listener))
+	if (const auto messaging{ SFSE::GetMessagingInterface() };
+		!messaging->RegisterListener(Listener))
 		return false;
 
 	logger::info("{} has finished loading.", Plugin::Name);

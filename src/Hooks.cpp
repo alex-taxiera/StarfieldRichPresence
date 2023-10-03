@@ -11,7 +11,8 @@ namespace Hooks
 
 		uintptr_t addresses[2] = {
 			REL::Relocation(REL::ID(148991), 0xCD).address(),  // menu thread
-			REL::Relocation(REL::ID(146554), 0x10).address()   // main game thread
+			REL::Relocation(REL::ID(146554), 0x10)
+				.address()  // main game thread
 		};
 
 		bool ShouldTriggerChange()

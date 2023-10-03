@@ -9,23 +9,27 @@ void Translations::LoadTranslations() noexcept
 	CSimpleIniA ini;
 
 	ini.SetUnicode();
-	auto rc = ini.LoadFile(R"(.\Data\SFSE\Plugins\StarfieldRichPresenceTranslation.ini)");
+	auto rc = ini.LoadFile(
+		R"(.\Data\SFSE\Plugins\StarfieldRichPresenceTranslation.ini)");
 
 	if (rc == SI_OK) {
 		// loaded translation file
 		for (const auto& key : std::views::keys(strings)) {
-			strings[key] = ini.GetValue("Translation", translationKeys.at(key), strings[key].c_str());
+			strings[key] = ini.GetValue("Translation", translationKeys.at(key),
+				strings[key].c_str());
 		}
 
 		logger::info("Loaded translation");
 	} else {
 		// write default values to translation file
 		for (const auto& key : std::views::keys(strings)) {
-			ini.SetValue("Translation", translationKeys.at(key), strings[key].c_str());
+			ini.SetValue("Translation", translationKeys.at(key),
+				strings[key].c_str());
 		}
 
 		if (!Settings::bEnableDebug) {
-			ini.SaveFile(R"(.\Data\SFSE\Plugins\StarfieldRichPresenceTranslation.ini)");
+			ini.SaveFile(
+				R"(.\Data\SFSE\Plugins\StarfieldRichPresenceTranslation.ini)");
 			logger::info("Created translation file using defaults (English)");
 		}
 	}

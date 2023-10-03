@@ -84,24 +84,14 @@ public:
 		{ ActiveFollowerTemplate, "sActiveFollowerTemplate" },
 	};
 	inline static std::map<Keys, std::string> strings = {
-		{ LaunchingGame, "Launching game" },
-		{ Exploring, "Exploring" },
-		{ Fighting, "Fighting" },
-		{ InSpace, "In outer space" },
-		{ InSpaceship, "In ship" },
-		{ PilotingSpaceship, "Piloting ship" },
-		{ TravellingWith, "Travelling with" },
-		{ System, "System" },
-		{ Level, "Lv" },
-		{ In, "in" },
-		{ On, "on" },
-		{ At, "at" },
-		{ Ship, "ship" },
-		{ InMainMenu, "In main menu" },
-		{ PauseMenu, "Paused" },
-		{ SleepWaitMenu, "Sleeping" },
-		{ PickpocketMenu, "Pickpocketing" },
-		{ LockpickingMenu, "Lockpicking" },
+		{ LaunchingGame, "Launching game" }, { Exploring, "Exploring" },
+		{ Fighting, "Fighting" }, { InSpace, "In outer space" },
+		{ InSpaceship, "In ship" }, { PilotingSpaceship, "Piloting ship" },
+		{ TravellingWith, "Travelling with" }, { System, "System" },
+		{ Level, "Lv" }, { In, "in" }, { On, "on" }, { At, "at" },
+		{ Ship, "ship" }, { InMainMenu, "In main menu" },
+		{ PauseMenu, "Paused" }, { SleepWaitMenu, "Sleeping" },
+		{ PickpocketMenu, "Pickpocketing" }, { LockpickingMenu, "Lockpicking" },
 		{ SkillsMenu, "Checking perks" },
 		{ GalaxyStarMapMenu, "Gazing at starmap" },
 		{ PhotoModeMenu, "Taking a photo" },
@@ -110,16 +100,17 @@ public:
 		{ PowersMenu, "Looking at powers" },
 		{ InventoryMenu, "Checking inventory" },
 		{ ChargenMenu, "Creating a character" },
-		{ SpaceshipEditorMenu, "Looking at ships" },
-		{ DataMenu, "In menus" },
-		{ CharacterNameAndLevelTemplate, "{0} | {1} {2}" },  // playerName | sLevel playerLevel
-		{ LevelTemplate, "{0} {1}" },                        // sLevel playerLevel
-		{ SystemNameTemplate, "{0} {1}" },                   // systemName sSystem
-		{ PilotingShipNameTemplate, "{0} ({1})" },           // sPilotingSpaceship shipName
-		{ InSpaceshipNameTemplate, "{0} ({1})" },            // sInSpaceship shipName
-		{ ExploringSpaceshipNameTemplate, "{0} {1}" },       // sExploring shipName
-		{ ExploringLocationTemplate, "{0} {1}" },            // sExploring locationName
-		{ ActiveFollowerTemplate, "{0} {1}" },               // sTravellingWith followerName
+		{ SpaceshipEditorMenu, "Looking at ships" }, { DataMenu, "In menus" },
+		{ CharacterNameAndLevelTemplate,
+			"{0} | {1} {2}" },              // playerName | sLevel playerLevel
+		{ LevelTemplate, "{0} {1}" },       // sLevel playerLevel
+		{ SystemNameTemplate, "{0} {1}" },  // systemName sSystem
+		{ PilotingShipNameTemplate,
+			"{0} ({1})" },  // sPilotingSpaceship shipName
+		{ InSpaceshipNameTemplate, "{0} ({1})" },       // sInSpaceship shipName
+		{ ExploringSpaceshipNameTemplate, "{0} {1}" },  // sExploring shipName
+		{ ExploringLocationTemplate, "{0} {1}" },  // sExploring locationName
+		{ ActiveFollowerTemplate, "{0} {1}" },  // sTravellingWith followerName
 	};
 
 	struct MenuEntry

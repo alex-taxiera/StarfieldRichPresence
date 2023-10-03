@@ -16,10 +16,14 @@ void Settings::LoadSettings() noexcept
 
 	bShowTimeElapsed = ini.GetBoolValue("Display", "bShowTimeElapsed", true);
 	bShowShipName = ini.GetBoolValue("Display", "bShowShipName", true);
-	bShowCharacterName = ini.GetBoolValue("Display", "bShowCharacterName", true);
-	bShowCharacterLevel = ini.GetBoolValue("Display", "bShowCharacterLevel", true);
-	bShowLocationInMenu = ini.GetBoolValue("Display", "bShowLocationInMenu", true);
-	bShowPlanetWhileOutside = ini.GetBoolValue("Display", "bShowPlanetWhileOutside", true);
+	bShowCharacterName =
+		ini.GetBoolValue("Display", "bShowCharacterName", true);
+	bShowCharacterLevel =
+		ini.GetBoolValue("Display", "bShowCharacterLevel", true);
+	bShowLocationInMenu =
+		ini.GetBoolValue("Display", "bShowLocationInMenu", true);
+	bShowPlanetWhileOutside =
+		ini.GetBoolValue("Display", "bShowPlanetWhileOutside", true);
 
 	bEnableDebug = ini.GetBoolValue("Log", "bEnableDebug", false);
 

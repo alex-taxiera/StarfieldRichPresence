@@ -11,22 +11,17 @@ namespace Discord
 		time_t startTime{};
 	}
 
-	void SetState(std::string state)
-	{
-		SetPresence(state, "");
-	}
+	void SetState(std::string state) { SetPresence(state, ""); }
 
-	void SetDetails(std::string details)
-	{
-		SetPresence("", details);
-	}
+	void SetDetails(std::string details) { SetPresence("", details); }
 
 	void SetPresence(std::string state, std::string details)
 	{
 		SetPresence(state, details, "", "");
 	}
 
-	void SetPresence(std::string state, std::string details, std::string smallImageKey, std::string smallImageText)
+	void SetPresence(std::string state, std::string details,
+		std::string smallImageKey, std::string smallImageText)
 	{
 		DiscordRichPresence presence = {
 			.state = state.c_str(),

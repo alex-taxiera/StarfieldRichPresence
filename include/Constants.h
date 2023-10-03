@@ -14,7 +14,7 @@ namespace Constants
 
 namespace Resources
 {
-	constexpr const char*                        StarfieldLogo = "constellation";
+	constexpr const char* StarfieldLogo = "constellation";
 	const std::map<std::uint32_t, CompanionData> companionDataMap = {
 		{ 0x000059A9, { .smallImageKey = "andreja_small" } },
 		{ 0x00005986, { .smallImageKey = "sarah_morgan_small" } },

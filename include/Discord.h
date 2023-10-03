@@ -8,5 +8,6 @@ namespace Discord
 	void SetState(std::string state);
 	void SetDetails(std::string details);
 	void SetPresence(std::string state, std::string details);
-	void SetPresence(std::string state, std::string details, std::string smallImageKey, std::string smallImageText);
+	void SetPresence(std::string state, std::string details,
+		std::string smallImageKey, std::string smallImageText);
 }
