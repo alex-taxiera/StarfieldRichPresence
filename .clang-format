@@ -63,7 +63,7 @@ BraceWrapping:
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: BeforeColon
 ColumnLimit: 180
-FixNamespaceComments: true
+FixNamespaceComments: false
 InsertNewlineAtEOF: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 LineEnding: CRLF
