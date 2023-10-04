@@ -139,6 +139,10 @@ public:
 	};
 
 	static void LoadTranslations() noexcept;
+
 	template <typename... Args>
-	static std::string fmt(Keys key, Args&&... args);
+	static inline std::string fmt(Keys key, Args&&... args)
+	{
+		return std::vformat(strings[key], std::make_format_args(args...));
+	}
 };

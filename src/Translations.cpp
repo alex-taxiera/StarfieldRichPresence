@@ -34,10 +34,3 @@ void Translations::LoadTranslations() noexcept
 		}
 	}
 }
-
-template <typename... Args>
-std::string Translations::fmt(Keys key, Args&&... args)
-{
-	return std::vformat(strings[key],
-		std::make_format_args(std::forward<Args>(args)...));
-};
