@@ -11,17 +11,12 @@ namespace PresenceManager
 	{
 		RE::TESActorBaseData* GetPlayerActorBaseData()
 		{
+			RE::TESActorBaseData* playerActorBaseData{};
 			auto playerFormBASE = RE::TESForm::LookupByID(0x00000007);
 
-			if (!playerFormBASE) {
-				return NULL;
-			}
-
-			auto playerActorBaseData =
-				starfield_cast<RE::TESActorBaseData*>(playerFormBASE);
-
-			if (!playerActorBaseData) {
-				return NULL;
+			if (playerFormBASE) {
+				playerActorBaseData =
+					starfield_cast<RE::TESActorBaseData*>(playerFormBASE);
 			}
 
 			return playerActorBaseData;
@@ -47,26 +42,30 @@ namespace PresenceManager
 			return companion;
 		}
 
-		RE::BGSLocation* GetRealLocation()
+		RE::BGSLocation* GetLocation()
 		{
-			RE::BGSLocation* location =
-				RE::PlayerCharacter::GetSingleton()->GetCurrentLocation();
+			RE::BGSLocation* location{};
+			auto             playerActor = RE::PlayerCharacter::GetSingleton();
 
-			if (location) {
+			if (playerActor) {
+				location = playerActor->GetCurrentLocation();
+			}
+
+			if (location && Settings::bEnableDebug) {
 				// DEBUG TREE
 
-				logger::debug("location: {}, type: {}, id: {:x}",
+				logger::info("location: {}, type: {}, id: {:x}",
 					location->GetFullName(), location->GetFormType(),
 					location->GetFormID());
 				auto parentLocation = location->parentLocation;
 				if (parentLocation) {
-					logger::debug("parentLocation: {}, type: {}, id: {:x}",
+					logger::info("parentLocation: {}, type: {}, id: {:x}",
 						parentLocation->GetFullName(),
 						parentLocation->GetFormType(),
 						parentLocation->GetFormID());
 					auto grandParentLocation = parentLocation->parentLocation;
 					if (grandParentLocation) {
-						logger::debug(
+						logger::info(
 							"grandParentLocation: {}, type: {}, id: {:x}",
 							grandParentLocation->GetFullName(),
 							grandParentLocation->GetFormType(),
@@ -74,7 +73,7 @@ namespace PresenceManager
 						auto greatGrandparentLocation =
 							grandParentLocation->parentLocation;
 						if (greatGrandparentLocation) {
-							logger::debug(
+							logger::info(
 								"greatGrandparentLocation: {}, type: {}, id: "
 								"{:x}",
 								greatGrandparentLocation->GetFullName(),
@@ -83,7 +82,7 @@ namespace PresenceManager
 							auto greatGreatGrandparentLocation =
 								greatGrandparentLocation->parentLocation;
 							if (greatGreatGrandparentLocation) {
-								logger::debug(
+								logger::info(
 									"greatGreatGrandparentLocation: {}, type: "
 									"{}, id: {:x}",
 									greatGreatGrandparentLocation
@@ -95,7 +94,7 @@ namespace PresenceManager
 									greatGreatGrandparentLocation
 										->parentLocation;
 								if (greatGreatGreatGrandparentLocation) {
-									logger::debug(
+									logger::info(
 										"greatGreatGreatGrandparentLocation: "
 										"{}, type: {}, id: {:x}",
 										greatGreatGreatGrandparentLocation
@@ -120,56 +119,60 @@ namespace PresenceManager
 			return location;
 		}
 
-		std::string GetPlayerLocationName()
+		RE::BGSLocation* GetParentLocation(RE::BGSLocation* location)
 		{
-			std::string locationName{};
+			auto        parentLocation = location->parentLocation;
+			std::string locationName = location->GetFullName();
 
-			auto location = GetRealLocation();
-
-			if (location) {
-				locationName = location->GetFullName();
+			while (parentLocation &&
+				   locationName.find(parentLocation->GetFullName()) !=
+					   std::string::npos) {
+				parentLocation = parentLocation->parentLocation;
 			}
-			return locationName;
+			return parentLocation;
 		}
 
-		std::string GetPlayerParentLocationName()
+		bool IsLocationSystem(RE::BGSLocation* location)
+		{
+			return location && location->parentLocation &&
+			       strcmp(location->parentLocation->GetFullName(),
+					   "Universe") == 0;
+		}
+
+		std::string GetParentLocationName(RE::BGSLocation* location)
 		{
 			std::string parentLocationName{};
 
-			auto location = GetRealLocation();
+			auto parentLocation = GetParentLocation(location);
 
-			if (location) {
-				auto parentLocation = location->parentLocation;
+			if (parentLocation) {
+				parentLocationName = parentLocation->GetFullName();
 
-				if (parentLocation) {
-					parentLocationName = parentLocation->GetFullName();
-
-					if (parentLocationName == location->GetFullName() &&
-						parentLocation->parentLocation) {
-						parentLocation = parentLocation->parentLocation;
-						parentLocationName = parentLocation->GetFullName();
-					}
-
-					// check if parent location is a system and add "System" to the name
-					// auto IsSystemKeyword = (RE::BGSKeyword*)RE::TESForm::LookupByID(0x0000149F);
-					// if (IsSystemKeyword && parentLocation->HasKeyword(IsSystemKeyword))
-					//{
-					//    parentLocationName = std::format("{} {}", parentLocationName, Translations::strings[Translations::Keys::System]);
-					//}
-					auto grandParentLocation = parentLocation->parentLocation;
-					if (grandParentLocation) {
-						std::string grandParentLocationName =
-							grandParentLocation->GetFullName();
-						if (strcmp(grandParentLocation->GetFullName(),
-								"Universe") ==
-							0)  // if the grand parent is the universe, then the parent is a system
-						{
-							parentLocationName = Translations::fmt(
-								Translations::Keys::SystemNameTemplate,
-								parentLocationName,
-								Translations::strings
-									[Translations::Keys::System]);
-						}
+				// check if parent location is a system and add "System" to the name
+				//auto tbo = RE::TBO_InstanceData();
+				//auto IsSystemKeyword = (RE::BGSKeyword*)RE::TESForm::LookupByID(0x0000149F);
+				//bool isSystem = parentLocation->HasKeyword(IsSystemKeyword, &tbo);
+				//logger::info("isSystem: {}", isSystem);
+				/*if (IsSystemKeyword &&
+					parentLocation->AsReference()->HasKeyword(
+						IsSystemKeyword))
+				{
+					parentLocationName = Translations::fmt(
+						Translations::Keys::SystemNameTemplate,
+						parentLocationName,
+						Translations::strings[Translations::Keys::System]);
+				}*/
+				auto grandParentLocation = parentLocation->parentLocation;
+				if (grandParentLocation) {
+					std::string grandParentLocationName =
+						grandParentLocation->GetFullName();
+					if (IsLocationSystem(
+							grandParentLocation))  // if the grand parent is the universe, then the parent is a system
+					{
+						parentLocationName = Translations::fmt(
+							Translations::Keys::SystemNameTemplate,
+							parentLocationName,
+							Translations::strings[Translations::Keys::System]);
 					}
 				}
 			}
@@ -213,9 +216,12 @@ namespace PresenceManager
 			auto        playerActor = RE::PlayerCharacter::GetSingleton();
 			auto        spaceship = playerActor->GetSpaceship();
 			bool        isInCombat = playerActor->IsInCombat();
-			std::string playerLocationName = GetPlayerLocationName();
+			auto        playerLocation = GetLocation();
+			auto        parentLocation = GetParentLocation(playerLocation);
+			std::string playerLocationName =
+				playerLocation ? playerLocation->GetFullName() : "";
 			std::string playerParentLocationName =
-				GetPlayerParentLocationName();
+				GetParentLocationName(playerLocation);
 
 			/*if (playerActor->IsInSpace(false))
             {
@@ -228,29 +234,36 @@ namespace PresenceManager
                 state = Translations::strings[Translations::Keys::InSpace];
             }*/
 
-			if (spaceship) {
+			if (spaceship) {  // player is in a spaceship or station, if location name is Ship then it is the player's ship
 				std::string shipName = spaceship->GetDisplayFullName();
 				auto        pilot = spaceship->GetSpaceshipPilot();
 				bool        isPiloting = pilot && pilot == playerActor;
 				bool        isInPlayerShip = playerLocationName == "Ship";
 
+				if (isInPlayerShip) {
+					playerLocationName =
+						Settings::bShowShipName ?
+							shipName :
+							Translations::strings[Translations::Keys::Ship];
+				}
+
 				if (isInCombat) {
-					state = std::format("{} {} {}",
+					state = Translations::fmt(
+						Translations::Keys::FightingOnShipTemplate,
 						Translations::strings[Translations::Keys::Fighting],
 						Translations::strings[Translations::Keys::On],
-						!isInPlayerShip || Settings::bShowShipName ?
-							shipName :
-							Translations::strings[Translations::Keys::Ship]);
+						playerLocationName);
 				} else if (isPiloting) {
-					if (isInPlayerShip && Settings::bShowShipName) {
+					if (playerLocationName ==
+						Translations::strings[Translations::Keys::Ship]) {
+						state = Translations::strings
+							[Translations::Keys::PilotingSpaceship];
+					} else {
 						state = Translations::fmt(
 							Translations::Keys::PilotingShipNameTemplate,
 							Translations::strings
 								[Translations::Keys::PilotingSpaceship],
-							shipName);
-					} else {
-						state = Translations::strings
-							[Translations::Keys::PilotingSpaceship];
+							playerLocationName);
 					}
 				} else if (isInPlayerShip) {
 					if (Settings::bShowShipName) {
@@ -258,37 +271,41 @@ namespace PresenceManager
 							Translations::Keys::InSpaceshipNameTemplate,
 							Translations::strings
 								[Translations::Keys::InSpaceship],
-							shipName);
+							playerLocationName);
 					} else {
 						state = Translations::strings
 							[Translations::Keys::InSpaceship];
 					}
 				} else {
-					state = Translations::fmt(
-						Translations::Keys::ExploringSpaceshipNameTemplate,
-						Translations::strings[Translations::Keys::Exploring],
-						shipName);
-				}
-			} else {
-				if (isInCombat) {
 					if (!playerParentLocationName.empty()) {
-						state = std::format("{} {} {} | {}",
-							Translations::strings[Translations::Keys::Fighting],
-							Translations::strings[Translations::Keys::At],
+						state = Translations::fmt(
+							Translations::Keys::
+								ExploringSpaceshipNameWithParentTemplate,
+							Translations::strings
+								[Translations::Keys::Exploring],
 							playerLocationName, playerParentLocationName);
 					} else {
-						state = std::format("{} {} {}",
-							Translations::strings[Translations::Keys::Fighting],
-							Translations::strings[Translations::Keys::On],
+						state = Translations::fmt(
+							Translations::Keys::ExploringSpaceshipNameTemplate,
+							Translations::strings
+								[Translations::Keys::Exploring],
 							playerLocationName);
 					}
+				}
+			} else {  // player is on a planet
+				if (isInCombat) {
+					state = Translations::fmt(
+						Translations::Keys::FightingOnPlanetTemplate,
+						Translations::strings[Translations::Keys::Fighting],
+						IsLocationSystem(parentLocation) ?
+							Translations::strings[Translations::Keys::On] :
+							Translations::strings[Translations::Keys::At],
+						playerLocationName, playerParentLocationName);
 				} else {
-					logger::debug("{} | {}", playerLocationName,
-						playerParentLocationName);
-
-					if (!playerParentLocationName.empty() &&
-						Settings::bShowPlanetWhileOutside) {
-						state = std::format("{} {} | {}",
+					if (!playerParentLocationName.empty()) {
+						state = Translations::fmt(
+							Translations::Keys::
+								ExploringLocationWithParentTemplate,
 							Translations::strings
 								[Translations::Keys::Exploring],
 							playerLocationName, playerParentLocationName);
@@ -371,18 +388,19 @@ namespace PresenceManager
 						return true;
 					}
 
-					auto playerActor = RE::PlayerCharacter::GetSingleton();
+					if (menuEntry.shouldShowLocation &&
+						Settings::bShowLocationInMenu) {
+						auto location = GetLocation();
 
-					if (menuEntry.shouldShowLocation && playerActor) {
-						auto locationName = GetPlayerLocationName();
-
-						if (!locationName.empty()) {
-							bool playerIsInside = playerActor->parentCell;
-							state = std::format("{} | {}", state, locationName);
+						if (location) {
+							state = Translations::fmt(
+								Translations::Keys::MenuWithLocationTemplate,
+								state, location->GetFullName());
 						}
 					}
 
 					if (menuEntry.shouldShowDetails) {
+						auto playerActor = RE::PlayerCharacter::GetSingleton();
 						auto playerActorBaseData = GetPlayerActorBaseData();
 
 						if (!playerActorBaseData || !playerActor) {

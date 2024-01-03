@@ -39,8 +39,13 @@ public:
 		PilotingShipNameTemplate,
 		InSpaceshipNameTemplate,
 		ExploringSpaceshipNameTemplate,
+		ExploringSpaceshipNameWithParentTemplate,
 		ExploringLocationTemplate,
+		ExploringLocationWithParentTemplate,
 		ActiveFollowerTemplate,
+		FightingOnShipTemplate,
+		FightingOnPlanetTemplate,
+		MenuWithLocationTemplate,
 	};
 
 	inline static const std::map<Keys, const char*> translationKeys = {
@@ -78,8 +83,15 @@ public:
 		{ PilotingShipNameTemplate, "sPilotingShipNameTemplate" },
 		{ InSpaceshipNameTemplate, "sInSpaceshipNameTemplate" },
 		{ ExploringSpaceshipNameTemplate, "sExploringSpaceshipNameTemplate" },
+		{ ExploringSpaceshipNameWithParentTemplate,
+			"sExploringSpaceshipNameWithParentTemplate" },
 		{ ExploringLocationTemplate, "sExploringLocationTemplate" },
+		{ ExploringLocationWithParentTemplate,
+			"sExploringLocationWithParentTemplate" },
 		{ ActiveFollowerTemplate, "sActiveFollowerTemplate" },
+		{ FightingOnShipTemplate, "sFightingOnShipTemplate" },
+		{ FightingOnPlanetTemplate, "sFightingOnPlanetTemplate" },
+		{ MenuWithLocationTemplate, "sMenuWithLocationTemplate" },
 	};
 	inline static std::map<Keys, std::string> strings = {
 		{ LaunchingGame, "Launching game" }, { Exploring, "Exploring" },
@@ -105,10 +117,20 @@ public:
 		{ SystemNameTemplate, "{0} {1}" },  // systemName sSystem
 		{ PilotingShipNameTemplate,
 			"{0} ({1})" },  // sPilotingSpaceship shipName
-		{ InSpaceshipNameTemplate, "{0} ({1})" },       // sInSpaceship shipName
-		{ ExploringSpaceshipNameTemplate, "{0} {1}" },  // sExploring shipName
+		{ InSpaceshipNameTemplate, "{0} ({1})" },  // sInSpaceship shipName
+		{ ExploringSpaceshipNameTemplate,
+			"{0} {1}" },  // sExploring shipName | planetName
+		{ ExploringSpaceshipNameWithParentTemplate,
+			"{0} {1} | {2}" },  // sExploring shipName | planetName
 		{ ExploringLocationTemplate, "{0} {1}" },  // sExploring locationName
+		{ ExploringLocationWithParentTemplate,
+			"{0} {1} | {2}" },  // sExploring locationName parentLocationName
 		{ ActiveFollowerTemplate, "{0} {1}" },  // sTravellingWith followerName
+		{ FightingOnShipTemplate, "{0} {1} {2}" },  // sFighting sOn shipName
+		{ FightingOnPlanetTemplate,
+			"{0} {1} {2} | {3}" },  // sFighting sOn planetName | systemName ... sFighting sAt locationName | planetName
+		{ MenuWithLocationTemplate, "{0} | {1}" },  // menuText | locationName
+
 	};
 
 	struct MenuEntry
