@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "starfield-rich-presence",
   "version-semver": "0.0.1",
-  "dependencies": [ "simpleini", "discord-rpc", "plf-nanotimer" ],
+  "dependencies": ["simpleini", "discord-rpc", "plf-nanotimer"],
   "license": "GPL-3.0-or-later",
   "vcpkg-configuration": {
     "default-registry": {
