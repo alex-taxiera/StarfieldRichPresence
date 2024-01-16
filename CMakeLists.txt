@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
+set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
 
 message("CMAKE_SHARED_LINKER_FLAGS: ${CMAKE_SHARED_LINKER_FLAGS}")
 
@@ -27,41 +28,54 @@ configure_file(
 set(PUBLIC_HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}")
 
 set(
-  headers
-    include/Utility.h
-)
-
-set(
-  sources
-    src/Discord.cpp
-    src/Hooks.cpp
-    src/Main.cpp
-    src/PresenceManager.cpp
-    src/Settings.cpp
-    src/Translations.cpp
-
-    ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+  SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Discord.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Hooks.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/PresenceManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Settings.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Translations.cpp
 )
 
 source_group(
   TREE ${CMAKE_CURRENT_SOURCE_DIR}
-  FILES ${headers} ${sources}
+  FILES
+    ${SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Utility.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Plugin.h
+)
+
+source_group(
+  TREE ${CMAKE_CURRENT_BINARY_DIR}
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+
 )
 
 ########################################################################################################################
 ## Configure target DLL
 ########################################################################################################################
-find_package(CommonLibSF CONFIG REQUIRED)
-add_commonlibsf_plugin(
+#find_package(CommonLibSF CONFIG REQUIRED)
+#add_commonlibsf_plugin(
+#  ${PROJECT_NAME}
+#  AUTHOR "Alex Taxiera"
+#  SOURCES ${headers} ${sources}
+#)
+add_library(
   ${PROJECT_NAME}
-  AUTHOR "Alex Taxiera"
-  SOURCES ${headers} ${sources}
+  SHARED
+    ${SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Plugin.h
+    ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+    .clang-format
+    vcpkg.json
 )
+
+add_subdirectory(extern/CommonLibSF)
+target_link_libraries(${PROJECT_NAME} PRIVATE CommonLibSF::CommonLibSF)
 
 find_library(DISCORD_RPC discord-rpc)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${DISCORD_RPC})
 
-add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
 
 find_path(PLF_NANOTIMER_INCLUDE_DIRS "plf_nanotimer.h")
 find_path(SIMPLEINI_INCLUDE_DIRS "SimpleIni.h")

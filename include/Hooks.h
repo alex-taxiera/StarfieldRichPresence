@@ -2,5 +2,7 @@
 
 namespace Hooks
 {
-	void Install() noexcept;
+	void InstallMenuHook() noexcept;
+
+	void InstallMainHook() noexcept;
 }

@@ -9,11 +9,11 @@ namespace Hooks
 	{
 		plf::nanotimer timer;
 
-		uintptr_t addresses[2] = {
-			REL::Relocation(REL::ID(148991), 0xCD).address(),  // menu thread
-			REL::Relocation(REL::ID(146554), 0x10)
-				.address()  // main game thread
-		};
+		auto menuThreadAddress =
+			REL::Relocation(REL::ID(148991), 0xCD).address();
+
+		auto mainThreadAddress =
+			REL::Relocation(REL::ID(146554), 0x10).address();
 
 		bool ShouldTriggerChange()
 		{
@@ -43,17 +43,23 @@ namespace Hooks
 		};
 	}  // namespace Presence
 
-	void Install() noexcept
+	void InstallMenuHook() noexcept
 	{
-		logger::info("Installing hooks");
 		Presence::timer.start();
 
-		// setup hooks
-		for (const auto& address : Presence::addresses) {
-			logger::debug("Installing Presence hook at {:x}", address);
-			SFSE::stl::write_thunk_call<Presence::Hook>(address);
-		}
+		logger::debug("Installing Presence hook at {:x}",
+			Presence::menuThreadAddress);
+		SFSE::stl::write_thunk_call<Presence::Hook>(
+			Presence::menuThreadAddress);
+	}
 
-		logger::info("Installed hooks");
+	void InstallMainHook() noexcept
+	{
+		Presence::timer.start();
+
+		logger::debug("Installing Presence hook at {:x}",
+			Presence::mainThreadAddress);
+		SFSE::stl::write_thunk_call<Presence::Hook>(
+			Presence::mainThreadAddress);
 	}
 }  // namespace Hooks
